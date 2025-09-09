@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 /**
  * Управляет коллекцией объектов Person.
  * Все операции по обработке коллекции реализованы с использованием Stream API.
+ * Методы не синхронизированы, так как сервер работает в однопоточном режиме.
  */
 public class CollectionManager {
     private TreeSet<Person> collection;
@@ -32,24 +33,24 @@ public class CollectionManager {
                 .orElse(0L) + 1;
     }
 
-    public synchronized TreeSet<Person> getCollection() {
+    public TreeSet<Person> getCollection() {
         return collection;
     }
 
-    public synchronized String getInfo() {
+    public String getInfo() {
         return "Тип коллекции: " + collection.getClass().getName() +
                 "\nДата инициализации: " + initializationTime.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss z")) +
                 "\nКоличество элементов: " + collection.size();
     }
 
-    public synchronized String add(Person person) {
+    public String add(Person person) {
         person.setId(nextId++);
         person.setCreationDate(java.time.LocalDateTime.now());
         collection.add(person);
         return "Новый человек успешно добавлен с ID: " + person.getId();
     }
 
-    public synchronized String addIfMin(Person person) {
+    public String addIfMin(Person person) {
         Optional<Person> minPerson = collection.stream().min(Person::compareTo);
         if (minPerson.isEmpty() || person.compareTo(minPerson.get()) < 0) {
             return add(person);
@@ -57,7 +58,7 @@ public class CollectionManager {
         return "Элемент не был добавлен, так как он не меньше минимального.";
     }
 
-    public synchronized String update(long id, Person updatedPersonData) {
+    public String update(long id, Person updatedPersonData) {
         Optional<Person> personOptional = collection.stream().filter(p -> p.getId() == id).findFirst();
         if (personOptional.isPresent()) {
             Person personToUpdate = personOptional.get();
@@ -71,18 +72,18 @@ public class CollectionManager {
         return "Человек с ID " + id + " не найден.";
     }
 
-    public synchronized String removeById(long id) {
+    public String removeById(long id) {
         boolean removed = collection.removeIf(person -> person.getId() == id);
         return removed ? "Человек с ID " + id + " успешно удален." : "Человек с ID " + id + " не найден.";
     }
 
-    public synchronized String clear() {
+    public String clear() {
         collection.clear();
         nextId = 1;
         return "Коллекция успешно очищена.";
     }
 
-    public synchronized String removeGreater(Person person) {
+    public String removeGreater(Person person) {
         int initialSize = collection.size();
         collection = collection.stream()
                 .filter(p -> p.compareTo(person) <= 0)
@@ -91,7 +92,7 @@ public class CollectionManager {
         return "Удалено " + removedCount + " элементов, больших чем заданный.";
     }
 
-    public synchronized String removeLower(Person person) {
+    public String removeLower(Person person) {
         int initialSize = collection.size();
         collection = collection.stream()
                 .filter(p -> p.compareTo(person) >= 0)
@@ -100,20 +101,20 @@ public class CollectionManager {
         return "Удалено " + removedCount + " элементов, меньших чем заданный.";
     }
 
-    public synchronized double getAverageHeight() {
+    public double getAverageHeight() {
         return collection.stream()
                 .mapToLong(Person::getHeight)
                 .average()
                 .orElse(0.0);
     }
 
-    public synchronized long countByHairColor(Color hairColor) {
+    public long countByHairColor(Color hairColor) {
         return collection.stream()
                 .filter(p -> Objects.equals(p.getHairColor(), hairColor))
                 .count();
     }
 
-    public synchronized TreeSet<Person> filterLessThanHairColor(Color hairColor) {
+    public TreeSet<Person> filterLessThanHairColor(Color hairColor) {
         if (hairColor == null) return new TreeSet<>();
         return collection.stream()
                 .filter(p -> p.getHairColor() != null && p.getHairColor().ordinal() < hairColor.ordinal())

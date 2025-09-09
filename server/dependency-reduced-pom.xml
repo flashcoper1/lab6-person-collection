@@ -24,6 +24,7 @@
                 <transformer>
                   <mainClass>ru.ifmo.lab6.server.Main</mainClass>
                 </transformer>
+                <transformer />
               </transformers>
             </configuration>
           </execution>

@@ -9,16 +9,18 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
+import java.nio.channels.Pipe;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Управляет сетевым взаимодействием на сервере с использованием NIO (неблокирующий ввод-вывод).
- * Все операции являются неблокирующими для использования в однопоточном цикле событий.
+ * Управляет сетевым взаимодействием и другими событиями ввода-вывода на сервере с использованием NIO.
+ * Работает в едином цикле событий (event loop), обрабатывая как сетевые запросы, так и консольные команды.
  */
 public class NetworkManager {
     private static final Logger LOGGER = Logger.getLogger(NetworkManager.class.getName());
@@ -26,58 +28,88 @@ public class NetworkManager {
 
     private final int port;
     private final CommandExecutor commandExecutor;
-    private DatagramChannel channel;
+    private DatagramChannel networkChannel;
     private Selector selector;
     private final ByteBuffer buffer = ByteBuffer.allocate(BUFFER_SIZE);
+    private Consumer<String> consoleCommandHandler; // Обработчик для команд из консоли
 
     public NetworkManager(int port, CommandExecutor commandExecutor) {
         this.port = port;
         this.commandExecutor = commandExecutor;
     }
 
+    // =============================================================
+    // ===== ВОТ ДОБАВЛЕННЫЙ МЕТОД, КОТОРЫЙ РЕШАЕТ ПРОБЛЕМУ =====
+    // =============================================================
     /**
-     * Инициализирует сетевые ресурсы: открывает канал, настраивает его на неблокирующий режим
-     * и регистрирует в селекторе. Вызывается один раз при старте сервера.
-     * @throws IOException если произошла ошибка при открытии канала или селектора.
+     * Возвращает Selector, управляющий каналами.
+     * Необходимо для вызова wakeup() из другого класса.
+     * @return Selector.
+     */
+    public Selector getSelector() {
+        return this.selector;
+    }
+    // =============================================================
+
+    /**
+     * Инициализирует Selector и сетевой канал.
+     * @throws IOException если произошла ошибка при открытии ресурсов.
      */
     public void setup() throws IOException {
         selector = Selector.open();
-        channel = DatagramChannel.open();
-        channel.configureBlocking(false);
-        channel.socket().bind(new InetSocketAddress(port));
-        channel.register(selector, SelectionKey.OP_READ);
+        networkChannel = DatagramChannel.open();
+        networkChannel.configureBlocking(false);
+        networkChannel.socket().bind(new InetSocketAddress(port));
+        networkChannel.register(selector, SelectionKey.OP_READ);
         LOGGER.info("Сетевой модуль готов. Сервер слушает порт " + port);
     }
 
     /**
-     * Неблокирующая проверка наличия входящих запросов.
-     * Если есть готовые к чтению данные, они считываются и обрабатываются.
-     * Этот метод должен вызываться итеративно в главном цикле сервера.
-     * @throws IOException в случае серьезной ошибки ввода-вывода.
+     * Регистрирует канал для чтения команд с консоли сервера.
+     * @param consoleSourceChannel Читающий конец Pipe.
+     * @param handler Функция, которая будет вызвана с прочитанной командой.
+     * @throws IOException если произошла ошибка регистрации канала.
      */
-    public void checkConnections() throws IOException {
-        // selectNow() не блокирует, а немедленно возвращает количество готовых каналов.
-        if (selector.selectNow() > 0) {
+    public void registerConsoleChannel(Pipe.SourceChannel consoleSourceChannel, Consumer<String> handler) throws IOException {
+        consoleSourceChannel.configureBlocking(false);
+        consoleSourceChannel.register(selector, SelectionKey.OP_READ);
+        this.consoleCommandHandler = handler;
+        LOGGER.info("Канал для консольных команд успешно зарегистрирован.");
+    }
+
+
+    /**
+     * Главный цикл обработки событий. Блокируется до тех пор, пока не появится
+     * новое событие (сетевой пакет или консольная команда).
+     */
+    public void processEvents() throws IOException {
+        // Теперь используем блокирующий select(), он сам "проснется", когда нужно.
+        if (selector.select() > 0) {
             Set<SelectionKey> selectedKeys = selector.selectedKeys();
             Iterator<SelectionKey> iter = selectedKeys.iterator();
 
             while (iter.hasNext()) {
                 SelectionKey key = iter.next();
                 if (key.isReadable()) {
-                    handleRead(key);
+                    // Определяем, какой канал готов: сетевой или консольный
+                    if (key.channel() == networkChannel) {
+                        handleNetworkRead(key);
+                    } else if (key.channel() instanceof Pipe.SourceChannel) {
+                        handleConsoleRead(key);
+                    }
                 }
                 iter.remove();
             }
         }
     }
 
-    private void handleRead(SelectionKey key) {
+    private void handleNetworkRead(SelectionKey key) {
         DatagramChannel clientChannel = (DatagramChannel) key.channel();
         buffer.clear();
         SocketAddress clientAddress;
         try {
             clientAddress = clientChannel.receive(buffer);
-            if (clientAddress == null) return; // Пакет мог быть потерян
+            if (clientAddress == null) return;
 
             buffer.flip();
             byte[] data = new byte[buffer.remaining()];
@@ -93,30 +125,40 @@ public class NetworkManager {
                 LOGGER.log(Level.WARNING, "Ошибка десериализации от " + clientAddress, e);
                 sendResponse(new Response(Response.Status.ERROR, "Ошибка: неверный формат запроса."), clientAddress);
             }
-
         } catch (IOException e) {
             LOGGER.log(Level.WARNING, "Ошибка при чтении данных от клиента", e);
         }
     }
 
+    private void handleConsoleRead(SelectionKey key) throws IOException {
+        Pipe.SourceChannel consoleChannel = (Pipe.SourceChannel) key.channel();
+        buffer.clear();
+        int bytesRead = consoleChannel.read(buffer);
+        if (bytesRead > 0) {
+            buffer.flip();
+            String command = new String(buffer.array(), 0, bytesRead).trim();
+            if (!command.isEmpty()) {
+                consoleCommandHandler.accept(command);
+            }
+        }
+    }
+
+
     private void sendResponse(Response response, SocketAddress clientAddress) {
         try {
             byte[] responseData = SerializationUtil.serialize(response);
             ByteBuffer responseBuffer = ByteBuffer.wrap(responseData);
-            channel.send(responseBuffer, clientAddress);
+            networkChannel.send(responseBuffer, clientAddress);
             LOGGER.info("Отправлен ответ клиенту " + clientAddress);
         } catch (IOException e) {
             LOGGER.log(Level.WARNING, "Ошибка при отправке ответа клиенту " + clientAddress, e);
         }
     }
 
-    /**
-     * Корректно закрывает канал и селектор.
-     */
     public void close() {
         try {
             if (selector != null) selector.close();
-            if (channel != null) channel.close();
+            if (networkChannel != null) networkChannel.close();
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "Ошибка при закрытии сетевых ресурсов", e);
         }

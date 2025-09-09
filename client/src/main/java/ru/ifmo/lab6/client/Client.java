@@ -8,8 +8,6 @@ import org.jline.terminal.TerminalBuilder;
 import ru.ifmo.lab6.client.managers.CommandFactory;
 import ru.ifmo.lab6.client.managers.UserInputHandler;
 import ru.ifmo.lab6.client.network.NetworkManager;
-import ru.ifmo.lab6.command.Command; // Нужен импорт для ExecuteScript
-import ru.ifmo.lab6.network.CommandType;
 import ru.ifmo.lab6.network.Request;
 import ru.ifmo.lab6.network.Response;
 
@@ -28,28 +26,14 @@ public class Client {
     private final Terminal terminal;
     private boolean running = true;
 
-    /**
-     * Конструктор клиента. Инициализирует все необходимые компоненты.
-     * @param host Хост сервера.
-     * @param port Порт сервера.
-     * @throws IOException если не удалось создать терминал или сетевое подключение.
-     */
     public Client(String host, int port) throws IOException {
         this.networkManager = new NetworkManager(host, port);
-
-        // Инициализируем терминал и LineReader здесь
         this.terminal = TerminalBuilder.builder().system(true).build();
         this.lineReader = LineReaderBuilder.builder().terminal(terminal).build();
-
-        // Инициализируем обработчик ввода и фабрику команд, используя LineReader
         UserInputHandler consoleInputHandler = new UserInputHandler(lineReader);
-        // Инициализируем ПОЛЕ КЛАССА commandFactory
         this.commandFactory = new CommandFactory(consoleInputHandler);
     }
 
-    /**
-     * Запускает главный цикл приложения.
-     */
     public void run() {
         System.out.println("Клиентское приложение для управления коллекцией Person.");
         System.out.println("Введите 'help' для получения списка команд.");
@@ -60,26 +44,32 @@ public class Client {
                 if (line == null) { // Ctrl+D
                     break;
                 }
-                if (line.trim().isEmpty()) {
+                String trimmedLine = line.trim();
+                if (trimmedLine.isEmpty()) {
                     continue;
                 }
 
-                // Используем ПОЛЕ КЛАССА commandFactory
-                Request request = commandFactory.createRequest(line);
+                String[] parts = trimmedLine.split("\\s+", 2);
+                String commandName = parts[0].toLowerCase();
 
-                if (request == null) {
-                    // Если createRequest вернул null, это может быть команда exit или ошибка
-                    String commandName = line.trim().split("\\s+")[0].toLowerCase();
-                    if (commandName.equals("exit")) {
-                        stop();
+                // --- НОВАЯ ЛОГИКА ОБРАБОТКИ ---
+                if (commandName.equals("exit")) {
+                    stop();
+                    continue;
+                }
+
+                if (commandName.equals("execute_script")) {
+                    if (parts.length > 1) {
+                        CommandFactory.executeScript(parts[1], this);
+                    } else {
+                        System.err.println("Необходимо указать имя файла скрипта.");
                     }
-                    continue;
+                    continue; // Переходим к следующей итерации цикла
                 }
+                // -----------------------------
 
-                if (request.getCommandType() == CommandType.EXECUTE_SCRIPT) {
-                    Command.ExecuteScript args = (Command.ExecuteScript) request.getArguments();
-                    CommandFactory.executeScript(args.fileName, this);
-                } else {
+                Request request = commandFactory.createRequest(trimmedLine);
+                if (request != null) {
                     processRequest(request);
                 }
 
@@ -89,22 +79,16 @@ public class Client {
                 break;
             }
         }
-
-        stop(); // Убедимся, что все ресурсы будут закрыты
+        stop();
     }
 
-    /**
-     * Отправляет запрос на сервер и обрабатывает ответ.
-     * @param request Запрос для отправки.
-     */
     public void processRequest(Request request) {
         try {
-            // Убираем ClassNotFoundException, так как мы его обрабатываем внутри
             Response response = networkManager.sendAndReceive(request);
             if (response != null) {
                 handleResponse(response);
             }
-        } catch (IOException e) { // Остается только IOException
+        } catch (IOException e) {
             System.err.println("Ошибка при обмене данными с сервером: " + e.getMessage());
         }
     }
@@ -134,11 +118,8 @@ public class Client {
         }
     }
 
-    /**
-     * Останавливает клиент и освобождает ресурсы.
-     */
     public void stop() {
-        if (!running) return; // Предотвращаем повторный вызов
+        if (!running) return;
         this.running = false;
         System.out.println("Завершение работы клиента...");
         try {

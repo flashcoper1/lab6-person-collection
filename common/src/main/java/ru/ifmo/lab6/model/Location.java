@@ -3,10 +3,13 @@ package ru.ifmo.lab6.model;
 import java.io.Serializable;
 import java.util.Objects;
 
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
 /**
  * Модель местоположения.
  * Реализует Serializable для передачи по сети.
  */
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Location implements Serializable {
     private static final long serialVersionUID = 2L;
 
@@ -21,6 +24,10 @@ public class Location implements Serializable {
         this.setZ(z);
         this.setName(name);
     }
+    /**
+     * Конструктор по умолчанию для JAXB.
+     */
+    public Location() {}
 
     public Float getX() {
         return x;

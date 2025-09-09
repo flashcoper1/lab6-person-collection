@@ -1,15 +1,19 @@
 package ru.ifmo.lab6.model;
 
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import ru.ifmo.lab6.util.LocalDateTimeAdapter;
+
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
-import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import ru.ifmo.lab6.util.LocalDateTimeAdapter;
 /**
  * Основной класс, объекты которого хранятся в коллекции.
  * Реализует Comparable для сортировки и Serializable для передачи по сети.
  */
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Person implements Comparable<Person>, Serializable {
     private static final long serialVersionUID = 3L;
 
@@ -26,8 +30,6 @@ public class Person implements Comparable<Person>, Serializable {
 
     /**
      * Конструктор по умолчанию (без аргументов).
-     * КРАЙНЕ ВАЖЕН для корректной работы фреймворков типа JAXB,
-     * которые создают объект, а затем заполняют его поля через сеттеры или рефлексию.
      */
     public Person() {}
 

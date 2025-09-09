@@ -2,11 +2,14 @@ package ru.ifmo.lab6.model;
 
 import java.io.Serializable;
 import java.util.Objects;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
 
 /**
  * Модель координат.
  * Реализует Serializable для передачи по сети.
  */
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Coordinates implements Serializable {
     private static final long serialVersionUID = 1L; // Версия для сериализации
 

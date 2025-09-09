@@ -13,19 +13,17 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
  * Управляет сетевым взаимодействием на сервере с использованием NIO (неблокирующий ввод-вывод).
- * Работает в одном потоке, обрабатывая все клиентские запросы.
+ * Все операции являются неблокирующими для использования в однопоточном цикле событий.
  */
 public class NetworkManager {
     private static final Logger LOGGER = Logger.getLogger(NetworkManager.class.getName());
     private static final int BUFFER_SIZE = 65536;
 
-    private final AtomicBoolean running = new AtomicBoolean(true);
     private final int port;
     private final CommandExecutor commandExecutor;
     private DatagramChannel channel;
@@ -37,51 +35,49 @@ public class NetworkManager {
         this.commandExecutor = commandExecutor;
     }
 
-    public void run() {
-        try {
-            selector = Selector.open();
-            channel = DatagramChannel.open();
-            channel.configureBlocking(false);
-            channel.socket().bind(new InetSocketAddress(port));
-            channel.register(selector, SelectionKey.OP_READ);
-            LOGGER.info("Сервер успешно запущен на порту " + port);
+    /**
+     * Инициализирует сетевые ресурсы: открывает канал, настраивает его на неблокирующий режим
+     * и регистрирует в селекторе. Вызывается один раз при старте сервера.
+     * @throws IOException если произошла ошибка при открытии канала или селектора.
+     */
+    public void setup() throws IOException {
+        selector = Selector.open();
+        channel = DatagramChannel.open();
+        channel.configureBlocking(false);
+        channel.socket().bind(new InetSocketAddress(port));
+        channel.register(selector, SelectionKey.OP_READ);
+        LOGGER.info("Сетевой модуль готов. Сервер слушает порт " + port);
+    }
 
-            while (running.get()) {
-                selector.select();
-                if (!running.get()) {
-                    break;
-                }
-                Set<SelectionKey> selectedKeys = selector.selectedKeys();
-                Iterator<SelectionKey> iter = selectedKeys.iterator();
+    /**
+     * Неблокирующая проверка наличия входящих запросов.
+     * Если есть готовые к чтению данные, они считываются и обрабатываются.
+     * Этот метод должен вызываться итеративно в главном цикле сервера.
+     * @throws IOException в случае серьезной ошибки ввода-вывода.
+     */
+    public void checkConnections() throws IOException {
+        // selectNow() не блокирует, а немедленно возвращает количество готовых каналов.
+        if (selector.selectNow() > 0) {
+            Set<SelectionKey> selectedKeys = selector.selectedKeys();
+            Iterator<SelectionKey> iter = selectedKeys.iterator();
 
-                // ----- ВОССТАНОВЛЕННАЯ ЛОГИКА -----
-                while (iter.hasNext()) {
-                    SelectionKey key = iter.next();
-                    if (key.isReadable()) {
-                        handleRead(key);
-                    }
-                    iter.remove(); // Крайне важно удалять обработанный ключ
+            while (iter.hasNext()) {
+                SelectionKey key = iter.next();
+                if (key.isReadable()) {
+                    handleRead(key);
                 }
-                // ---------------------------------
+                iter.remove();
             }
-        } catch (IOException e) {
-            if (running.get()) {
-                LOGGER.log(Level.SEVERE, "Критическая сетевая ошибка", e);
-            }
-        } finally {
-            close();
         }
-        LOGGER.info("Сетевой менеджер завершил работу.");
     }
 
     private void handleRead(SelectionKey key) {
-        // ... этот метод у вас уже правильный, оставляем без изменений ...
         DatagramChannel clientChannel = (DatagramChannel) key.channel();
         buffer.clear();
         SocketAddress clientAddress;
         try {
             clientAddress = clientChannel.receive(buffer);
-            if (clientAddress == null) return;
+            if (clientAddress == null) return; // Пакет мог быть потерян
 
             buffer.flip();
             byte[] data = new byte[buffer.remaining()];
@@ -104,7 +100,6 @@ public class NetworkManager {
     }
 
     private void sendResponse(Response response, SocketAddress clientAddress) {
-        // ... этот метод у вас уже правильный, оставляем без изменений ...
         try {
             byte[] responseData = SerializationUtil.serialize(response);
             ByteBuffer responseBuffer = ByteBuffer.wrap(responseData);
@@ -115,13 +110,9 @@ public class NetworkManager {
         }
     }
 
-    public void stop() {
-        running.set(false);
-        if (selector != null) {
-            selector.wakeup();
-        }
-    }
-
+    /**
+     * Корректно закрывает канал и селектор.
+     */
     public void close() {
         try {
             if (selector != null) selector.close();

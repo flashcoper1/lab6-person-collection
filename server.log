@@ -1,0 +1,259 @@
+9月 09, 2025 3:37:14 下午 org.glassfish.jaxb.core.v2.ClassFactory tryGetDeclaredConstructor
+INFO: No default constructor found on class ru.ifmo.lab6.model.Person
+java.lang.NoSuchMethodException: ru.ifmo.lab6.model.Person.<init>()
+	at java.base/java.lang.Class.getConstructor0(Class.java:3784)
+	at java.base/java.lang.Class.getDeclaredConstructor(Class.java:2955)
+	at org.glassfish.jaxb.core.v2.ClassFactory.tryGetDeclaredConstructor(ClassFactory.java:109)
+	at org.glassfish.jaxb.core.v2.ClassFactory.create0(ClassFactory.java:78)
+	at org.glassfish.jaxb.runtime.v2.runtime.ClassBeanInfoImpl.createInstance(ClassBeanInfoImpl.java:255)
+	at org.glassfish.jaxb.runtime.v2.runtime.unmarshaller.UnmarshallingContext.createInstance(UnmarshallingContext.java:655)
+	at org.glassfish.jaxb.runtime.v2.runtime.unmarshaller.StructureLoader.startElement(StructureLoader.java:156)
+	at org.glassfish.jaxb.runtime.v2.runtime.unmarshaller.UnmarshallingContext._startElement(UnmarshallingContext.java:530)
+	at org.glassfish.jaxb.runtime.v2.runtime.unmarshaller.UnmarshallingContext.startElement(UnmarshallingContext.java:509)
+	at org.glassfish.jaxb.runtime.v2.runtime.unmarshaller.SAXConnector.startElement(SAXConnector.java:137)
+	at java.xml/com.sun.org.apache.xerces.internal.parsers.AbstractSAXParser.startElement(AbstractSAXParser.java:519)
+	at java.xml/com.sun.org.apache.xerces.internal.impl.XMLNSDocumentScannerImpl.scanStartElement(XMLNSDocumentScannerImpl.java:375)
+	at java.xml/com.sun.org.apache.xerces.internal.impl.XMLDocumentFragmentScannerImpl$FragmentContentDriver.next(XMLDocumentFragmentScannerImpl.java:2735)
+	at java.xml/com.sun.org.apache.xerces.internal.impl.XMLDocumentScannerImpl.next(XMLDocumentScannerImpl.java:635)
+	at java.xml/com.sun.org.apache.xerces.internal.impl.XMLNSDocumentScannerImpl.next(XMLNSDocumentScannerImpl.java:113)
+	at java.xml/com.sun.org.apache.xerces.internal.impl.XMLDocumentFragmentScannerImpl.scanDocument(XMLDocumentFragmentScannerImpl.java:551)
+	at java.xml/com.sun.org.apache.xerces.internal.parsers.XML11Configuration.parse(XML11Configuration.java:890)
+	at java.xml/com.sun.org.apache.xerces.internal.parsers.XML11Configuration.parse(XML11Configuration.java:826)
+	at java.xml/com.sun.org.apache.xerces.internal.parsers.XMLParser.parse(XMLParser.java:134)
+	at java.xml/com.sun.org.apache.xerces.internal.parsers.AbstractSAXParser.parse(AbstractSAXParser.java:1225)
+	at java.xml/com.sun.org.apache.xerces.internal.jaxp.SAXParserImpl$JAXPSAXParser.parse(SAXParserImpl.java:643)
+	at org.glassfish.jaxb.runtime.v2.runtime.unmarshaller.UnmarshallerImpl.unmarshal0(UnmarshallerImpl.java:218)
+	at org.glassfish.jaxb.runtime.v2.runtime.unmarshaller.UnmarshallerImpl.unmarshal(UnmarshallerImpl.java:189)
+	at jakarta.xml.bind.helpers.AbstractUnmarshallerImpl.unmarshal(AbstractUnmarshallerImpl.java:146)
+	at jakarta.xml.bind.helpers.AbstractUnmarshallerImpl.unmarshal(AbstractUnmarshallerImpl.java:199)
+	at ru.ifmo.lab6.server.managers.XmlFileManager.load(XmlFileManager.java:61)
+	at ru.ifmo.lab6.server.Main.main(Main.java:48)
+
+9月 09, 2025 3:37:47 下午 org.glassfish.jaxb.core.v2.ClassFactory tryGetDeclaredConstructor
+INFO: No default constructor found on class ru.ifmo.lab6.model.Person
+java.lang.NoSuchMethodException: ru.ifmo.lab6.model.Person.<init>()
+	at java.base/java.lang.Class.getConstructor0(Class.java:3784)
+	at java.base/java.lang.Class.getDeclaredConstructor(Class.java:2955)
+	at org.glassfish.jaxb.core.v2.ClassFactory.tryGetDeclaredConstructor(ClassFactory.java:109)
+	at org.glassfish.jaxb.core.v2.ClassFactory.create0(ClassFactory.java:78)
+	at org.glassfish.jaxb.runtime.v2.runtime.ClassBeanInfoImpl.createInstance(ClassBeanInfoImpl.java:255)
+	at org.glassfish.jaxb.runtime.v2.runtime.unmarshaller.UnmarshallingContext.createInstance(UnmarshallingContext.java:655)
+	at org.glassfish.jaxb.runtime.v2.runtime.unmarshaller.StructureLoader.startElement(StructureLoader.java:156)
+	at org.glassfish.jaxb.runtime.v2.runtime.unmarshaller.UnmarshallingContext._startElement(UnmarshallingContext.java:530)
+	at org.glassfish.jaxb.runtime.v2.runtime.unmarshaller.UnmarshallingContext.startElement(UnmarshallingContext.java:509)
+	at org.glassfish.jaxb.runtime.v2.runtime.unmarshaller.SAXConnector.startElement(SAXConnector.java:137)
+	at java.xml/com.sun.org.apache.xerces.internal.parsers.AbstractSAXParser.startElement(AbstractSAXParser.java:519)
+	at java.xml/com.sun.org.apache.xerces.internal.impl.XMLNSDocumentScannerImpl.scanStartElement(XMLNSDocumentScannerImpl.java:375)
+	at java.xml/com.sun.org.apache.xerces.internal.impl.XMLDocumentFragmentScannerImpl$FragmentContentDriver.next(XMLDocumentFragmentScannerImpl.java:2735)
+	at java.xml/com.sun.org.apache.xerces.internal.impl.XMLDocumentScannerImpl.next(XMLDocumentScannerImpl.java:635)
+	at java.xml/com.sun.org.apache.xerces.internal.impl.XMLNSDocumentScannerImpl.next(XMLNSDocumentScannerImpl.java:113)
+	at java.xml/com.sun.org.apache.xerces.internal.impl.XMLDocumentFragmentScannerImpl.scanDocument(XMLDocumentFragmentScannerImpl.java:551)
+	at java.xml/com.sun.org.apache.xerces.internal.parsers.XML11Configuration.parse(XML11Configuration.java:890)
+	at java.xml/com.sun.org.apache.xerces.internal.parsers.XML11Configuration.parse(XML11Configuration.java:826)
+	at java.xml/com.sun.org.apache.xerces.internal.parsers.XMLParser.parse(XMLParser.java:134)
+	at java.xml/com.sun.org.apache.xerces.internal.parsers.AbstractSAXParser.parse(AbstractSAXParser.java:1225)
+	at java.xml/com.sun.org.apache.xerces.internal.jaxp.SAXParserImpl$JAXPSAXParser.parse(SAXParserImpl.java:643)
+	at org.glassfish.jaxb.runtime.v2.runtime.unmarshaller.UnmarshallerImpl.unmarshal0(UnmarshallerImpl.java:218)
+	at org.glassfish.jaxb.runtime.v2.runtime.unmarshaller.UnmarshallerImpl.unmarshal(UnmarshallerImpl.java:189)
+	at jakarta.xml.bind.helpers.AbstractUnmarshallerImpl.unmarshal(AbstractUnmarshallerImpl.java:146)
+	at jakarta.xml.bind.helpers.AbstractUnmarshallerImpl.unmarshal(AbstractUnmarshallerImpl.java:199)
+	at ru.ifmo.lab6.server.managers.XmlFileManager.load(XmlFileManager.java:61)
+	at ru.ifmo.lab6.server.Main.main(Main.java:48)
+
+9月 09, 2025 3:40:48 下午 org.glassfish.jaxb.core.v2.ClassFactory tryGetDeclaredConstructor
+INFO: No default constructor found on class ru.ifmo.lab6.model.Coordinates
+java.lang.NoSuchMethodException: ru.ifmo.lab6.model.Coordinates.<init>()
+	at java.base/java.lang.Class.getConstructor0(Class.java:3784)
+	at java.base/java.lang.Class.getDeclaredConstructor(Class.java:2955)
+	at org.glassfish.jaxb.core.v2.ClassFactory.tryGetDeclaredConstructor(ClassFactory.java:109)
+	at org.glassfish.jaxb.core.v2.ClassFactory.create0(ClassFactory.java:78)
+	at org.glassfish.jaxb.runtime.v2.runtime.ClassBeanInfoImpl.createInstance(ClassBeanInfoImpl.java:255)
+	at org.glassfish.jaxb.runtime.v2.runtime.unmarshaller.UnmarshallingContext.createInstance(UnmarshallingContext.java:655)
+	at org.glassfish.jaxb.runtime.v2.runtime.unmarshaller.StructureLoader.startElement(StructureLoader.java:156)
+	at org.glassfish.jaxb.runtime.v2.runtime.unmarshaller.UnmarshallingContext._startElement(UnmarshallingContext.java:530)
+	at org.glassfish.jaxb.runtime.v2.runtime.unmarshaller.UnmarshallingContext.startElement(UnmarshallingContext.java:509)
+	at org.glassfish.jaxb.runtime.v2.runtime.unmarshaller.SAXConnector.startElement(SAXConnector.java:137)
+	at java.xml/com.sun.org.apache.xerces.internal.parsers.AbstractSAXParser.startElement(AbstractSAXParser.java:519)
+	at java.xml/com.sun.org.apache.xerces.internal.impl.XMLNSDocumentScannerImpl.scanStartElement(XMLNSDocumentScannerImpl.java:375)
+	at java.xml/com.sun.org.apache.xerces.internal.impl.XMLDocumentFragmentScannerImpl$FragmentContentDriver.next(XMLDocumentFragmentScannerImpl.java:2735)
+	at java.xml/com.sun.org.apache.xerces.internal.impl.XMLDocumentScannerImpl.next(XMLDocumentScannerImpl.java:635)
+	at java.xml/com.sun.org.apache.xerces.internal.impl.XMLNSDocumentScannerImpl.next(XMLNSDocumentScannerImpl.java:113)
+	at java.xml/com.sun.org.apache.xerces.internal.impl.XMLDocumentFragmentScannerImpl.scanDocument(XMLDocumentFragmentScannerImpl.java:551)
+	at java.xml/com.sun.org.apache.xerces.internal.parsers.XML11Configuration.parse(XML11Configuration.java:890)
+	at java.xml/com.sun.org.apache.xerces.internal.parsers.XML11Configuration.parse(XML11Configuration.java:826)
+	at java.xml/com.sun.org.apache.xerces.internal.parsers.XMLParser.parse(XMLParser.java:134)
+	at java.xml/com.sun.org.apache.xerces.internal.parsers.AbstractSAXParser.parse(AbstractSAXParser.java:1225)
+	at java.xml/com.sun.org.apache.xerces.internal.jaxp.SAXParserImpl$JAXPSAXParser.parse(SAXParserImpl.java:643)
+	at org.glassfish.jaxb.runtime.v2.runtime.unmarshaller.UnmarshallerImpl.unmarshal0(UnmarshallerImpl.java:218)
+	at org.glassfish.jaxb.runtime.v2.runtime.unmarshaller.UnmarshallerImpl.unmarshal(UnmarshallerImpl.java:189)
+	at jakarta.xml.bind.helpers.AbstractUnmarshallerImpl.unmarshal(AbstractUnmarshallerImpl.java:146)
+	at jakarta.xml.bind.helpers.AbstractUnmarshallerImpl.unmarshal(AbstractUnmarshallerImpl.java:199)
+	at ru.ifmo.lab6.server.managers.XmlFileManager.load(XmlFileManager.java:61)
+	at ru.ifmo.lab6.server.Main.main(Main.java:48)
+
+9月 09, 2025 3:41:22 下午 org.glassfish.jaxb.core.v2.ClassFactory tryGetDeclaredConstructor
+INFO: No default constructor found on class ru.ifmo.lab6.model.Coordinates
+java.lang.NoSuchMethodException: ru.ifmo.lab6.model.Coordinates.<init>()
+	at java.base/java.lang.Class.getConstructor0(Class.java:3784)
+	at java.base/java.lang.Class.getDeclaredConstructor(Class.java:2955)
+	at org.glassfish.jaxb.core.v2.ClassFactory.tryGetDeclaredConstructor(ClassFactory.java:109)
+	at org.glassfish.jaxb.core.v2.ClassFactory.create0(ClassFactory.java:78)
+	at org.glassfish.jaxb.runtime.v2.runtime.ClassBeanInfoImpl.createInstance(ClassBeanInfoImpl.java:255)
+	at org.glassfish.jaxb.runtime.v2.runtime.unmarshaller.UnmarshallingContext.createInstance(UnmarshallingContext.java:655)
+	at org.glassfish.jaxb.runtime.v2.runtime.unmarshaller.StructureLoader.startElement(StructureLoader.java:156)
+	at org.glassfish.jaxb.runtime.v2.runtime.unmarshaller.UnmarshallingContext._startElement(UnmarshallingContext.java:530)
+	at org.glassfish.jaxb.runtime.v2.runtime.unmarshaller.UnmarshallingContext.startElement(UnmarshallingContext.java:509)
+	at org.glassfish.jaxb.runtime.v2.runtime.unmarshaller.SAXConnector.startElement(SAXConnector.java:137)
+	at java.xml/com.sun.org.apache.xerces.internal.parsers.AbstractSAXParser.startElement(AbstractSAXParser.java:519)
+	at java.xml/com.sun.org.apache.xerces.internal.impl.XMLNSDocumentScannerImpl.scanStartElement(XMLNSDocumentScannerImpl.java:375)
+	at java.xml/com.sun.org.apache.xerces.internal.impl.XMLDocumentFragmentScannerImpl$FragmentContentDriver.next(XMLDocumentFragmentScannerImpl.java:2735)
+	at java.xml/com.sun.org.apache.xerces.internal.impl.XMLDocumentScannerImpl.next(XMLDocumentScannerImpl.java:635)
+	at java.xml/com.sun.org.apache.xerces.internal.impl.XMLNSDocumentScannerImpl.next(XMLNSDocumentScannerImpl.java:113)
+	at java.xml/com.sun.org.apache.xerces.internal.impl.XMLDocumentFragmentScannerImpl.scanDocument(XMLDocumentFragmentScannerImpl.java:551)
+	at java.xml/com.sun.org.apache.xerces.internal.parsers.XML11Configuration.parse(XML11Configuration.java:890)
+	at java.xml/com.sun.org.apache.xerces.internal.parsers.XML11Configuration.parse(XML11Configuration.java:826)
+	at java.xml/com.sun.org.apache.xerces.internal.parsers.XMLParser.parse(XMLParser.java:134)
+	at java.xml/com.sun.org.apache.xerces.internal.parsers.AbstractSAXParser.parse(AbstractSAXParser.java:1225)
+	at java.xml/com.sun.org.apache.xerces.internal.jaxp.SAXParserImpl$JAXPSAXParser.parse(SAXParserImpl.java:643)
+	at org.glassfish.jaxb.runtime.v2.runtime.unmarshaller.UnmarshallerImpl.unmarshal0(UnmarshallerImpl.java:218)
+	at org.glassfish.jaxb.runtime.v2.runtime.unmarshaller.UnmarshallerImpl.unmarshal(UnmarshallerImpl.java:189)
+	at jakarta.xml.bind.helpers.AbstractUnmarshallerImpl.unmarshal(AbstractUnmarshallerImpl.java:146)
+	at jakarta.xml.bind.helpers.AbstractUnmarshallerImpl.unmarshal(AbstractUnmarshallerImpl.java:199)
+	at ru.ifmo.lab6.server.managers.XmlFileManager.load(XmlFileManager.java:61)
+	at ru.ifmo.lab6.server.Main.main(Main.java:48)
+
+9月 09, 2025 3:42:21 下午 org.glassfish.jaxb.core.v2.ClassFactory tryGetDeclaredConstructor
+INFO: No default constructor found on class ru.ifmo.lab6.model.Coordinates
+java.lang.NoSuchMethodException: ru.ifmo.lab6.model.Coordinates.<init>()
+	at java.base/java.lang.Class.getConstructor0(Class.java:3784)
+	at java.base/java.lang.Class.getDeclaredConstructor(Class.java:2955)
+	at org.glassfish.jaxb.core.v2.ClassFactory.tryGetDeclaredConstructor(ClassFactory.java:109)
+	at org.glassfish.jaxb.core.v2.ClassFactory.create0(ClassFactory.java:78)
+	at org.glassfish.jaxb.runtime.v2.runtime.ClassBeanInfoImpl.createInstance(ClassBeanInfoImpl.java:255)
+	at org.glassfish.jaxb.runtime.v2.runtime.unmarshaller.UnmarshallingContext.createInstance(UnmarshallingContext.java:655)
+	at org.glassfish.jaxb.runtime.v2.runtime.unmarshaller.StructureLoader.startElement(StructureLoader.java:156)
+	at org.glassfish.jaxb.runtime.v2.runtime.unmarshaller.UnmarshallingContext._startElement(UnmarshallingContext.java:530)
+	at org.glassfish.jaxb.runtime.v2.runtime.unmarshaller.UnmarshallingContext.startElement(UnmarshallingContext.java:509)
+	at org.glassfish.jaxb.runtime.v2.runtime.unmarshaller.SAXConnector.startElement(SAXConnector.java:137)
+	at java.xml/com.sun.org.apache.xerces.internal.parsers.AbstractSAXParser.startElement(AbstractSAXParser.java:519)
+	at java.xml/com.sun.org.apache.xerces.internal.impl.XMLNSDocumentScannerImpl.scanStartElement(XMLNSDocumentScannerImpl.java:375)
+	at java.xml/com.sun.org.apache.xerces.internal.impl.XMLDocumentFragmentScannerImpl$FragmentContentDriver.next(XMLDocumentFragmentScannerImpl.java:2735)
+	at java.xml/com.sun.org.apache.xerces.internal.impl.XMLDocumentScannerImpl.next(XMLDocumentScannerImpl.java:635)
+	at java.xml/com.sun.org.apache.xerces.internal.impl.XMLNSDocumentScannerImpl.next(XMLNSDocumentScannerImpl.java:113)
+	at java.xml/com.sun.org.apache.xerces.internal.impl.XMLDocumentFragmentScannerImpl.scanDocument(XMLDocumentFragmentScannerImpl.java:551)
+	at java.xml/com.sun.org.apache.xerces.internal.parsers.XML11Configuration.parse(XML11Configuration.java:890)
+	at java.xml/com.sun.org.apache.xerces.internal.parsers.XML11Configuration.parse(XML11Configuration.java:826)
+	at java.xml/com.sun.org.apache.xerces.internal.parsers.XMLParser.parse(XMLParser.java:134)
+	at java.xml/com.sun.org.apache.xerces.internal.parsers.AbstractSAXParser.parse(AbstractSAXParser.java:1225)
+	at java.xml/com.sun.org.apache.xerces.internal.jaxp.SAXParserImpl$JAXPSAXParser.parse(SAXParserImpl.java:643)
+	at org.glassfish.jaxb.runtime.v2.runtime.unmarshaller.UnmarshallerImpl.unmarshal0(UnmarshallerImpl.java:218)
+	at org.glassfish.jaxb.runtime.v2.runtime.unmarshaller.UnmarshallerImpl.unmarshal(UnmarshallerImpl.java:189)
+	at jakarta.xml.bind.helpers.AbstractUnmarshallerImpl.unmarshal(AbstractUnmarshallerImpl.java:146)
+	at jakarta.xml.bind.helpers.AbstractUnmarshallerImpl.unmarshal(AbstractUnmarshallerImpl.java:199)
+	at ru.ifmo.lab6.server.managers.XmlFileManager.load(XmlFileManager.java:61)
+	at ru.ifmo.lab6.server.Main.main(Main.java:48)
+
+9月 09, 2025 3:44:06 下午 org.glassfish.jaxb.core.v2.ClassFactory tryGetDeclaredConstructor
+INFO: No default constructor found on class java.time.LocalDateTime
+java.lang.NoSuchMethodException: java.time.LocalDateTime.<init>()
+	at java.base/java.lang.Class.getConstructor0(Class.java:3784)
+	at java.base/java.lang.Class.getDeclaredConstructor(Class.java:2955)
+	at org.glassfish.jaxb.core.v2.ClassFactory.tryGetDeclaredConstructor(ClassFactory.java:109)
+	at org.glassfish.jaxb.core.v2.ClassFactory.create0(ClassFactory.java:78)
+	at org.glassfish.jaxb.runtime.v2.runtime.ClassBeanInfoImpl.createInstance(ClassBeanInfoImpl.java:255)
+	at org.glassfish.jaxb.runtime.v2.runtime.unmarshaller.UnmarshallingContext.createInstance(UnmarshallingContext.java:655)
+	at org.glassfish.jaxb.runtime.v2.runtime.unmarshaller.StructureLoader.startElement(StructureLoader.java:156)
+	at org.glassfish.jaxb.runtime.v2.runtime.unmarshaller.UnmarshallingContext._startElement(UnmarshallingContext.java:530)
+	at org.glassfish.jaxb.runtime.v2.runtime.unmarshaller.UnmarshallingContext.startElement(UnmarshallingContext.java:509)
+	at org.glassfish.jaxb.runtime.v2.runtime.unmarshaller.SAXConnector.startElement(SAXConnector.java:137)
+	at java.xml/com.sun.org.apache.xerces.internal.parsers.AbstractSAXParser.startElement(AbstractSAXParser.java:519)
+	at java.xml/com.sun.org.apache.xerces.internal.impl.XMLNSDocumentScannerImpl.scanStartElement(XMLNSDocumentScannerImpl.java:375)
+	at java.xml/com.sun.org.apache.xerces.internal.impl.XMLDocumentFragmentScannerImpl$FragmentContentDriver.next(XMLDocumentFragmentScannerImpl.java:2735)
+	at java.xml/com.sun.org.apache.xerces.internal.impl.XMLDocumentScannerImpl.next(XMLDocumentScannerImpl.java:635)
+	at java.xml/com.sun.org.apache.xerces.internal.impl.XMLNSDocumentScannerImpl.next(XMLNSDocumentScannerImpl.java:113)
+	at java.xml/com.sun.org.apache.xerces.internal.impl.XMLDocumentFragmentScannerImpl.scanDocument(XMLDocumentFragmentScannerImpl.java:551)
+	at java.xml/com.sun.org.apache.xerces.internal.parsers.XML11Configuration.parse(XML11Configuration.java:890)
+	at java.xml/com.sun.org.apache.xerces.internal.parsers.XML11Configuration.parse(XML11Configuration.java:826)
+	at java.xml/com.sun.org.apache.xerces.internal.parsers.XMLParser.parse(XMLParser.java:134)
+	at java.xml/com.sun.org.apache.xerces.internal.parsers.AbstractSAXParser.parse(AbstractSAXParser.java:1225)
+	at java.xml/com.sun.org.apache.xerces.internal.jaxp.SAXParserImpl$JAXPSAXParser.parse(SAXParserImpl.java:643)
+	at org.glassfish.jaxb.runtime.v2.runtime.unmarshaller.UnmarshallerImpl.unmarshal0(UnmarshallerImpl.java:218)
+	at org.glassfish.jaxb.runtime.v2.runtime.unmarshaller.UnmarshallerImpl.unmarshal(UnmarshallerImpl.java:189)
+	at jakarta.xml.bind.helpers.AbstractUnmarshallerImpl.unmarshal(AbstractUnmarshallerImpl.java:146)
+	at jakarta.xml.bind.helpers.AbstractUnmarshallerImpl.unmarshal(AbstractUnmarshallerImpl.java:199)
+	at ru.ifmo.lab6.server.managers.XmlFileManager.load(XmlFileManager.java:61)
+	at ru.ifmo.lab6.server.Main.main(Main.java:48)
+
+9月 09, 2025 3:50:44 下午 ru.ifmo.lab6.server.managers.XmlFileManager load
+SEVERE: Ошибка парсинга XML файла. Файл может быть поврежден: D:\study\java\projects\lab6-person-collection\my_collection.xml
+org.glassfish.jaxb.runtime.v2.runtime.IllegalAnnotationsException: 1 counts of IllegalAnnotationExceptions
+Class has two properties of the same name "creationDate"
+	this problem is related to the following location:
+		at public java.time.LocalDateTime ru.ifmo.lab6.model.Person.getCreationDate()
+		at ru.ifmo.lab6.model.Person
+		at private java.util.TreeSet ru.ifmo.lab6.server.managers.XmlFileManager$PersonWrapper.persons
+		at ru.ifmo.lab6.server.managers.XmlFileManager$PersonWrapper
+	this problem is related to the following location:
+		at private java.time.LocalDateTime ru.ifmo.lab6.model.Person.creationDate
+		at ru.ifmo.lab6.model.Person
+		at private java.util.TreeSet ru.ifmo.lab6.server.managers.XmlFileManager$PersonWrapper.persons
+		at ru.ifmo.lab6.server.managers.XmlFileManager$PersonWrapper
+
+	at org.glassfish.jaxb.runtime.v2.runtime.IllegalAnnotationsException$Builder.check(IllegalAnnotationsException.java:83)
+	at org.glassfish.jaxb.runtime.v2.runtime.JAXBContextImpl.getTypeInfoSet(JAXBContextImpl.java:421)
+	at org.glassfish.jaxb.runtime.v2.runtime.JAXBContextImpl.<init>(JAXBContextImpl.java:255)
+	at org.glassfish.jaxb.runtime.v2.runtime.JAXBContextImpl$JAXBContextBuilder.build(JAXBContextImpl.java:1115)
+	at org.glassfish.jaxb.runtime.v2.ContextFactory.createContext(ContextFactory.java:144)
+	at org.glassfish.jaxb.runtime.v2.JAXBContextFactory.createContext(JAXBContextFactory.java:44)
+	at jakarta.xml.bind.ContextFinder.find(ContextFinder.java:368)
+	at jakarta.xml.bind.JAXBContext.newInstance(JAXBContext.java:605)
+	at jakarta.xml.bind.JAXBContext.newInstance(JAXBContext.java:546)
+	at ru.ifmo.lab6.server.managers.XmlFileManager.load(XmlFileManager.java:59)
+	at ru.ifmo.lab6.server.Main.main(Main.java:48)
+
+9月 09, 2025 3:50:44 下午 ru.ifmo.lab6.server.managers.XmlFileManager load
+WARNING: Из-за ошибки загружена пустая коллекция.
+9月 09, 2025 3:50:45 下午 ru.ifmo.lab6.server.NetworkManager run
+INFO: Сервер успешно запущен на порту 12345
+9月 09, 2025 3:54:58 下午 ru.ifmo.lab6.server.managers.XmlFileManager load
+INFO: Файл коллекции пуст. Создана новая коллекция.
+9月 09, 2025 3:54:58 下午 ru.ifmo.lab6.server.NetworkManager run
+INFO: Сервер успешно запущен на порту 12345
+9月 09, 2025 3:55:59 下午 ru.ifmo.lab6.server.NetworkManager handleRead
+INFO: Получен запрос от /127.0.0.1:63194
+9月 09, 2025 3:55:59 下午 ru.ifmo.lab6.server.CommandExecutor execute
+INFO: Выполнение команды HELP
+9月 09, 2025 3:55:59 下午 ru.ifmo.lab6.server.NetworkManager sendResponse
+INFO: Отправлен ответ клиенту /127.0.0.1:63194
+9月 09, 2025 4:06:02 下午 ru.ifmo.lab6.server.Main lambda$main$0
+INFO: Получен сигнал завершения. Сохранение коллекции...
+9月 09, 2025 4:06:25 下午 ru.ifmo.lab6.server.managers.XmlFileManager load
+INFO: Файл коллекции пуст. Создана новая коллекция.
+9月 09, 2025 4:06:25 下午 ru.ifmo.lab6.server.NetworkManager run
+INFO: Сервер успешно запущен на порту 12345
+9月 09, 2025 4:43:07 下午 ru.ifmo.lab6.server.Main lambda$main$0
+INFO: Получен сигнал завершения. Сохранение коллекции...
+9月 09, 2025 5:05:12 下午 ru.ifmo.lab6.server.Main main
+SEVERE: Переменная окружения PERSON_COLLECTION_FILE не установлена.
+9月 09, 2025 5:06:58 下午 ru.ifmo.lab6.server.Main main
+SEVERE: Переменная окружения PERSON_COLLECTION_FILE не установлена.
+9月 09, 2025 5:07:18 下午 ru.ifmo.lab6.server.Main main
+SEVERE: Переменная окружения PERSON_COLLECTION_FILE не установлена.
+9月 09, 2025 5:09:03 下午 ru.ifmo.lab6.server.managers.XmlFileManager load
+INFO: Файл коллекции пуст. Создана новая коллекция.
+9月 09, 2025 5:09:04 下午 ru.ifmo.lab6.server.NetworkManager run
+INFO: Сервер успешно запущен на порту 12345
+9月 09, 2025 5:10:08 下午 ru.ifmo.lab6.server.managers.XmlFileManager load
+INFO: Файл коллекции пуст. Создана новая коллекция.
+9月 09, 2025 5:10:08 下午 ru.ifmo.lab6.server.NetworkManager run
+INFO: Сервер успешно запущен на порту 12345
+9月 09, 2025 5:11:54 下午 ru.ifmo.lab6.server.Main lambda$main$0
+INFO: Получен сигнал завершения. Сохранение коллекции...
+9月 09, 2025 5:14:30 下午 ru.ifmo.lab6.server.managers.XmlFileManager load
+INFO: Файл коллекции пуст. Создана новая коллекция.
+9月 09, 2025 5:14:31 下午 ru.ifmo.lab6.server.NetworkManager run
+INFO: Сервер успешно запущен на порту 12345
+9月 09, 2025 5:18:14 下午 ru.ifmo.lab6.server.managers.XmlFileManager load
+INFO: Файл коллекции пуст. Создана новая коллекция.
+9月 09, 2025 5:18:14 下午 ru.ifmo.lab6.server.NetworkManager run
+INFO: Сервер успешно запущен на порту 12345

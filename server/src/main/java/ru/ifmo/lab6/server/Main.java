@@ -9,24 +9,116 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 import java.nio.channels.Pipe;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
  * Главный класс серверного приложения.
- * Использует единый Selector для обработки как сетевых запросов, так и команд из консоли сервера,
- * реализуя полностью событийно-ориентированную однопоточную модель.
+ * Инкапсулирует логику запуска и остановки сервера.
  */
 public class Main {
     private static final Logger LOGGER = Logger.getLogger(Main.class.getName());
 
+    // volatile гарантирует, что изменения этого флага будут видны всем потокам немедленно.
+    private volatile boolean running = true;
+
+    private final XmlFileManager xmlFileManager;
+    private final CollectionManager collectionManager;
+    private final NetworkManager networkManager;
+    private final Pipe consolePipe;
+
+    public Main(int port, String filePath) throws IOException {
+        this.xmlFileManager = new XmlFileManager(filePath);
+        this.collectionManager = new CollectionManager(xmlFileManager.load());
+        this.networkManager = new NetworkManager(port, new CommandExecutor(collectionManager));
+        this.consolePipe = Pipe.open();
+    }
+
+    public void start() {
+        try {
+            // 1. Настройка сетевых компонентов
+            networkManager.setup();
+            networkManager.registerConsoleChannel(consolePipe.source(), this::handleConsoleCommand);
+
+            // 2. Запуск фонового потока для чтения консоли
+            Thread consoleInputThread = new Thread(this::readConsoleInput);
+            consoleInputThread.setDaemon(true);
+            consoleInputThread.start();
+
+            // 3. Регистрация Shutdown Hook
+            Runtime.getRuntime().addShutdownHook(new Thread(this::shutdown));
+
+            System.out.println("Сервер запущен. Введите 'save' для сохранения или 'exit' для завершения.");
+
+            // 4. Главный цикл событий
+            while (running) {
+                networkManager.processEvents();
+            }
+
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Произошла критическая ошибка в главном цикле сервера", e);
+        } finally {
+            // 5. Корректное завершение
+            stop();
+        }
+    }
+
+    private void handleConsoleCommand(String command) {
+        switch (command.toLowerCase().trim()) {
+            case "save":
+                System.out.println("Выполняется сохранение коллекции...");
+                xmlFileManager.save(collectionManager.getCollection());
+                System.out.println("Коллекция успешно сохранена.");
+                break;
+            case "exit":
+                System.out.println("Завершение работы сервера...");
+                running = false;
+                networkManager.getSelector().wakeup();
+                break;
+            default:
+                System.out.println("Неизвестная серверная команда. Доступные: 'save', 'exit'.");
+                break;
+        }
+    }
+
+    private void readConsoleInput() {
+        try (BufferedReader consoleReader = new BufferedReader(new InputStreamReader(System.in))) {
+            while (running && !Thread.currentThread().isInterrupted()) {
+                String line = consoleReader.readLine();
+                if (line == null) break;
+                consolePipe.sink().write(ByteBuffer.wrap(line.getBytes()));
+            }
+        } catch (IOException e) {
+            if (running) {
+                LOGGER.log(Level.WARNING, "Ошибка в потоке чтения консоли", e);
+            }
+        }
+    }
+
+    private void stop() {
+        System.out.println("Начинается процедура остановки сервера...");
+        shutdown();
+        try {
+            networkManager.close();
+            consolePipe.sink().close();
+            consolePipe.source().close();
+        } catch (IOException e) {
+            LOGGER.log(Level.WARNING, "Ошибка при закрытии ресурсов", e);
+        }
+        System.out.println("Сервер остановлен.");
+    }
+
+    private void shutdown() {
+        // Этот метод может быть вызван как из Shutdown Hook, так и при штатном завершении
+        // Логика сохранения вынесена сюда, чтобы избежать дублирования
+        xmlFileManager.save(collectionManager.getCollection());
+        LOGGER.info("Коллекция сохранена.");
+    }
+
+
     public static void main(String[] args) {
-        // 1. Настройка логгера
         LoggerSetup.setup("server.log");
 
-        // 2. Валидация аргументов командной строки и переменной окружения
         if (args.length != 1) {
             System.err.println("Использование: java -jar server.jar <port>");
             return;
@@ -34,9 +126,8 @@ public class Main {
         int port;
         try {
             port = Integer.parseInt(args[0]);
-            if (port <= 0 || port > 65535) throw new NumberFormatException();
         } catch (NumberFormatException e) {
-            System.err.println("Ошибка: порт должен быть целым числом от 1 до 65535.");
+            System.err.println("Ошибка: порт должен быть целым числом.");
             return;
         }
         String filePath = System.getenv("PERSON_COLLECTION_FILE");
@@ -46,83 +137,10 @@ public class Main {
         }
 
         try {
-            // 3. Инициализация основных компонентов сервера
-            final XmlFileManager xmlFileManager = new XmlFileManager(filePath);
-            final CollectionManager collectionManager = new CollectionManager(xmlFileManager.load());
-            final NetworkManager networkManager = new NetworkManager(port, new CommandExecutor(collectionManager));
-
-            networkManager.setup();
-
-            // Используем AtomicBoolean для потокобезопасного управления состоянием работы сервера
-            final AtomicBoolean running = new AtomicBoolean(true);
-
-            // 4. Определяем логику обработки команд, поступающих с консоли сервера
-            Consumer<String> consoleCommandHandler = (command) -> {
-                switch (command.toLowerCase().trim()) {
-                    case "save":
-                        System.out.println("Выполняется сохранение коллекции...");
-                        xmlFileManager.save(collectionManager.getCollection());
-                        System.out.println("Коллекция успешно сохранена.");
-                        break;
-                    case "exit":
-                        System.out.println("Завершение работы сервера...");
-                        running.set(false); // Устанавливаем флаг для выхода из главного цикла
-                        // Прерываем selector.select(), чтобы цикл завершился немедленно
-                        networkManager.getSelector().wakeup();
-                        break;
-                    default:
-                        System.out.println("Неизвестная серверная команда. Доступные: 'save', 'exit'.");
-                        break;
-                }
-            };
-
-            // 5. Создаем "мост" (Pipe) между блокирующим System.in и неблокирующим Selector'ом
-            Pipe consolePipe = Pipe.open();
-            networkManager.registerConsoleChannel(consolePipe.source(), consoleCommandHandler);
-
-            // 6. Запускаем отдельный фоновый поток для чтения из блокирующего System.in
-            Thread consoleInputThread = new Thread(() -> {
-                try (BufferedReader consoleReader = new BufferedReader(new InputStreamReader(System.in))) {
-                    while (!Thread.currentThread().isInterrupted() && running.get()) {
-                        String line = consoleReader.readLine(); // Этот вызов блокирует только этот поток
-                        if (line == null) break; // EOF (Ctrl+D)
-                        // Записываем прочитанную строку в Pipe. Данные "телепортируются" в главный поток.
-                        consolePipe.sink().write(ByteBuffer.wrap(line.getBytes()));
-                    }
-                } catch (IOException e) {
-                    if (running.get()) { // Логируем ошибку только если сервер не был остановлен намеренно
-                        LOGGER.log(Level.SEVERE, "Ошибка в потоке чтения консоли", e);
-                    }
-                }
-            });
-            consoleInputThread.setDaemon(true); // Поток не будет мешать завершению программы
-            consoleInputThread.start();
-
-            // 7. Регистрируем Shutdown Hook для корректного сохранения при аварийном завершении (например, по Ctrl+C)
-            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-                LOGGER.info("Shutdown Hook: Сохранение коллекции...");
-                xmlFileManager.save(collectionManager.getCollection());
-                LOGGER.info("Shutdown Hook: Сохранение завершено.");
-            }));
-
-            System.out.println("Сервер запущен. Введите 'save' для сохранения или 'exit' для завершения.");
-
-            // 8. Главный однопоточный цикл событий. Больше нет опросов и Thread.sleep()
-            while (running.get()) {
-                // Блокируется до тех пор, пока не произойдет какое-либо событие (сеть или консоль)
-                networkManager.processEvents();
-            }
-
-            // 9. Корректное завершение работы
-            System.out.println("Начинается процедура остановки сервера...");
-            xmlFileManager.save(collectionManager.getCollection()); // Финальное сохранение
-            networkManager.close();
-            consolePipe.sink().close();
-            consolePipe.source().close();
-            System.out.println("Сервер остановлен.");
-
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Произошла критическая ошибка в главном цикле сервера", e);
+            Main server = new Main(port, filePath);
+            server.start();
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, "Не удалось запустить сервер.", e);
         }
     }
 }

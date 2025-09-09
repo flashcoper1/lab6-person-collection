@@ -13,9 +13,9 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Управляет сетевым взаимодействием на сервере с использованием NIO (неблокирующий ввод-вывод).
@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class NetworkManager {
     private static final Logger LOGGER = Logger.getLogger(NetworkManager.class.getName());
-    private static final int BUFFER_SIZE = 65536; // 64KB, максимальный размер UDP пакета
+    private static final int BUFFER_SIZE = 65536;
 
     private final AtomicBoolean running = new AtomicBoolean(true);
     private final int port;
@@ -37,9 +37,6 @@ public class NetworkManager {
         this.commandExecutor = commandExecutor;
     }
 
-    /**
-     * Запускает сервер: открывает канал, настраивает его и входит в бесконечный цикл ожидания запросов.
-     */
     public void run() {
         try {
             selector = Selector.open();
@@ -47,26 +44,28 @@ public class NetworkManager {
             channel.configureBlocking(false);
             channel.socket().bind(new InetSocketAddress(port));
             channel.register(selector, SelectionKey.OP_READ);
-
             LOGGER.info("Сервер успешно запущен на порту " + port);
 
             while (running.get()) {
-                selector.select(); // Блокируется до появления события
-
-                // Проверяем флаг после пробуждения
+                selector.select();
                 if (!running.get()) {
                     break;
                 }
-
                 Set<SelectionKey> selectedKeys = selector.selectedKeys();
                 Iterator<SelectionKey> iter = selectedKeys.iterator();
 
+                // ----- ВОССТАНОВЛЕННАЯ ЛОГИКА -----
                 while (iter.hasNext()) {
-                    // ...
+                    SelectionKey key = iter.next();
+                    if (key.isReadable()) {
+                        handleRead(key);
+                    }
+                    iter.remove(); // Крайне важно удалять обработанный ключ
                 }
+                // ---------------------------------
             }
         } catch (IOException e) {
-            if (running.get()) { // Логируем ошибку, только если она не вызвана штатным закрытием
+            if (running.get()) {
                 LOGGER.log(Level.SEVERE, "Критическая сетевая ошибка", e);
             }
         } finally {
@@ -75,20 +74,14 @@ public class NetworkManager {
         LOGGER.info("Сетевой менеджер завершил работу.");
     }
 
-    public void stop() {
-        running.set(false);
-        if (selector != null) {
-            selector.wakeup(); // "Будим" селектор, который может спать в select()
-        }
-    }
-
     private void handleRead(SelectionKey key) {
+        // ... этот метод у вас уже правильный, оставляем без изменений ...
         DatagramChannel clientChannel = (DatagramChannel) key.channel();
         buffer.clear();
         SocketAddress clientAddress;
         try {
             clientAddress = clientChannel.receive(buffer);
-            if (clientAddress == null) return; // Пакет мог быть потерян
+            if (clientAddress == null) return;
 
             buffer.flip();
             byte[] data = new byte[buffer.remaining()];
@@ -111,6 +104,7 @@ public class NetworkManager {
     }
 
     private void sendResponse(Response response, SocketAddress clientAddress) {
+        // ... этот метод у вас уже правильный, оставляем без изменений ...
         try {
             byte[] responseData = SerializationUtil.serialize(response);
             ByteBuffer responseBuffer = ByteBuffer.wrap(responseData);
@@ -121,9 +115,13 @@ public class NetworkManager {
         }
     }
 
-    /**
-     * Корректно закрывает канал и селектор.
-     */
+    public void stop() {
+        running.set(false);
+        if (selector != null) {
+            selector.wakeup();
+        }
+    }
+
     public void close() {
         try {
             if (selector != null) selector.close();

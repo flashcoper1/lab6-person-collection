@@ -99,11 +99,12 @@ public class Client {
      */
     public void processRequest(Request request) {
         try {
+            // Убираем ClassNotFoundException, так как мы его обрабатываем внутри
             Response response = networkManager.sendAndReceive(request);
             if (response != null) {
                 handleResponse(response);
             }
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (IOException e) { // Остается только IOException
             System.err.println("Ошибка при обмене данными с сервером: " + e.getMessage());
         }
     }

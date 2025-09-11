@@ -18,93 +18,90 @@ import java.util.logging.Logger;
  */
 public class Main {
     private static final Logger LOGGER = Logger.getLogger(Main.class.getName());
-
     private volatile boolean running = true;
 
-    private final XmlFileManager xmlFileManager;
-    private final CollectionManager collectionManager;
-    private final NetworkManager networkManager;
-    private final Pipe consolePipe;
+    private final int port;
+    private final String filePath;
 
-    public Main(int port, String filePath) throws IOException {
-        this.xmlFileManager = new XmlFileManager(filePath);
-        this.collectionManager = new CollectionManager(xmlFileManager.load());
-        this.networkManager = new NetworkManager(port, new CommandExecutor(collectionManager));
-        this.consolePipe = Pipe.open();
+    public Main(int port, String filePath) {
+        this.port = port;
+        this.filePath = filePath;
     }
 
     public void start() {
+        XmlFileManager xmlFileManager = new XmlFileManager(filePath);
+        CollectionManager collectionManager = new CollectionManager(xmlFileManager.load());
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            xmlFileManager.save(collectionManager.getCollection());
+            LOGGER.info("Коллекция сохранена при завершении работы.");
+        }));
+
+
         try {
-            networkManager.setup();
-            networkManager.registerConsoleChannel(consolePipe.source(), this::handleConsoleCommand);
+            final Pipe consolePipe = Pipe.open();
 
-            Thread consoleInputThread = new Thread(this::readConsoleInput);
-            consoleInputThread.setDaemon(true);
-            consoleInputThread.start();
+            try (NetworkManager networkManager = new NetworkManager(port, new CommandExecutor(collectionManager));
+                 Pipe.SourceChannel consoleSource = consolePipe.source();
+                 Pipe.SinkChannel consoleSink = consolePipe.sink()) {
 
-            Runtime.getRuntime().addShutdownHook(new Thread(this::shutdown));
+                networkManager.setup();
+                networkManager.registerConsoleChannel(consoleSource,
+                        (command) -> handleConsoleCommand(command, collectionManager, xmlFileManager, networkManager));
 
-            System.out.println("Сервер запущен. Введите 'save' для сохранения или 'exit' для завершения.");
+                Thread consoleInputThread = new Thread(() -> readConsoleInput(consoleSink));
+                consoleInputThread.setDaemon(true);
+                consoleInputThread.start();
 
-            while (running) {
-                networkManager.processEvents();
+                LOGGER.info("Сервер запущен. Введите 'save' для сохранения или 'exit' для завершения.");
+
+                while (running) {
+                    networkManager.processEvents();
+                }
+
             }
-
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Произошла критическая ошибка в главном цикле сервера", e);
         } finally {
-            stop();
+            LOGGER.info("Сервер остановлен.");
         }
     }
 
-    private void handleConsoleCommand(String command) {
+
+    private void handleConsoleCommand(String command, CollectionManager cm, XmlFileManager fm, NetworkManager nm) {
         switch (command.toLowerCase().trim()) {
             case "save":
-                System.out.println("Выполняется сохранение коллекции...");
-                xmlFileManager.save(collectionManager.getCollection());
-                System.out.println("Коллекция успешно сохранена.");
+                LOGGER.info("Выполняется принудительное сохранение коллекции по команде с консоли...");
+                fm.save(cm.getCollection());
+                LOGGER.info("Коллекция успешно сохранена.");
                 break;
             case "exit":
-                System.out.println("Завершение работы сервера...");
+                LOGGER.info("Завершение работы сервера по команде exit...");
                 running = false;
-                networkManager.getSelector().wakeup();
+                if (nm != null && nm.getSelector() != null && nm.getSelector().isOpen()) {
+                    nm.getSelector().wakeup();
+                }
                 break;
             default:
-                System.out.println("Неизвестная серверная команда. Доступные: 'save', 'exit'.");
+                LOGGER.warning("Неизвестная серверная команда: '" + command + "'. Доступные: 'save', 'exit'.");
                 break;
         }
     }
 
-    private void readConsoleInput() {
+    private void readConsoleInput(Pipe.SinkChannel consoleSink) {
+
         try (BufferedReader consoleReader = new BufferedReader(new InputStreamReader(System.in))) {
             while (running && !Thread.currentThread().isInterrupted()) {
                 String line = consoleReader.readLine();
                 if (line == null) break;
-                consolePipe.sink().write(ByteBuffer.wrap(line.getBytes()));
+                if (!consoleSink.isOpen()) break; // Дополнительная проверка на случай, если канал уже закрыт
+                consoleSink.write(ByteBuffer.wrap(line.getBytes()));
             }
         } catch (IOException e) {
-            if (running) {
+            if (running && consoleSink.isOpen()) {
                 LOGGER.log(Level.WARNING, "Ошибка в потоке чтения консоли", e);
             }
         }
-    }
-
-    private void stop() {
-        System.out.println("Начинается процедура остановки сервера...");
-        shutdown();
-        try {
-            networkManager.close();
-            consolePipe.sink().close();
-            consolePipe.source().close();
-        } catch (IOException e) {
-            LOGGER.log(Level.WARNING, "Ошибка при закрытии ресурсов", e);
-        }
-        System.out.println("Сервер остановлен.");
-    }
-
-    private void shutdown() {
-        xmlFileManager.save(collectionManager.getCollection());
-        LOGGER.info("Коллекция сохранена.");
     }
 
 
@@ -131,7 +128,7 @@ public class Main {
         try {
             Main server = new Main(port, filePath);
             server.start();
-        } catch (IOException e) {
+        } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Не удалось запустить сервер.", e);
         }
     }

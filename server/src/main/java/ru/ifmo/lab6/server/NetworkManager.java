@@ -4,6 +4,7 @@ import ru.ifmo.lab6.network.Request;
 import ru.ifmo.lab6.network.Response;
 import ru.ifmo.lab6.server.util.SerializationUtil;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -21,8 +22,9 @@ import java.util.logging.Logger;
 /**
  * Управляет сетевым взаимодействием и другими событиями ввода-вывода на сервере с использованием NIO.
  * Работает в едином цикле событий (event loop), обрабатывая как сетевые запросы, так и консольные команды.
+ * Реализует Closeable для гарантированного закрытия ресурсов.
  */
-public class NetworkManager {
+public class NetworkManager implements Closeable {
     private static final Logger LOGGER = Logger.getLogger(NetworkManager.class.getName());
     private static final int BUFFER_SIZE = 65536;
 
@@ -31,19 +33,13 @@ public class NetworkManager {
     private DatagramChannel networkChannel;
     private Selector selector;
     private final ByteBuffer buffer = ByteBuffer.allocate(BUFFER_SIZE);
-    private Consumer<String> consoleCommandHandler; // Обработчик для команд из консоли
+    private Consumer<String> consoleCommandHandler;
 
     public NetworkManager(int port, CommandExecutor commandExecutor) {
         this.port = port;
         this.commandExecutor = commandExecutor;
     }
 
-
-    /**
-     * Возвращает Selector, управляющий каналами.
-     * Необходимо для вызова wakeup() из другого класса.
-     * @return Selector.
-     */
     public Selector getSelector() {
         return this.selector;
     }
@@ -74,13 +70,11 @@ public class NetworkManager {
         LOGGER.info("Канал для консольных команд успешно зарегистрирован.");
     }
 
-
     /**
      * Главный цикл обработки событий. Блокируется до тех пор, пока не появится
      * новое событие (сетевой пакет или консольная команда).
      */
     public void processEvents() throws IOException {
-        // Теперь используем блокирующий select(), он сам "проснется", когда нужно.
         if (selector.select() > 0) {
             Set<SelectionKey> selectedKeys = selector.selectedKeys();
             Iterator<SelectionKey> iter = selectedKeys.iterator();
@@ -88,7 +82,6 @@ public class NetworkManager {
             while (iter.hasNext()) {
                 SelectionKey key = iter.next();
                 if (key.isReadable()) {
-                    // Определяем, какой канал готов: сетевой или консольный
                     if (key.channel() == networkChannel) {
                         handleNetworkRead(key);
                     } else if (key.channel() instanceof Pipe.SourceChannel) {
@@ -140,7 +133,6 @@ public class NetworkManager {
         }
     }
 
-
     private void sendResponse(Response response, SocketAddress clientAddress) {
         try {
             byte[] responseData = SerializationUtil.serialize(response);
@@ -152,12 +144,15 @@ public class NetworkManager {
         }
     }
 
-    public void close() {
+    @Override
+    public void close() throws IOException {
+        LOGGER.info("Закрытие сетевых ресурсов...");
         try {
             if (selector != null) selector.close();
             if (networkChannel != null) networkChannel.close();
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "Ошибка при закрытии сетевых ресурсов", e);
+            throw e;
         }
     }
 }

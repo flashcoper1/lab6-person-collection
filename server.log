@@ -868,3 +868,45 @@ INFO: Получен запрос от /127.0.0.1:60457
 INFO: Выполнение команды SHOW
 9月 11, 2025 3:55:11 下午 ru.ifmo.lab6.server.NetworkManager sendResponse
 INFO: Отправлен ответ клиенту /127.0.0.1:60457
+9月 11, 2025 3:57:45 下午 ru.ifmo.lab6.server.NetworkManager handleNetworkRead
+INFO: Получен запрос от /127.0.0.1:65475
+9月 11, 2025 3:57:45 下午 ru.ifmo.lab6.server.CommandExecutor execute
+INFO: Выполнение команды HELP
+9月 11, 2025 3:57:45 下午 ru.ifmo.lab6.server.NetworkManager sendResponse
+INFO: Отправлен ответ клиенту /127.0.0.1:65475
+9月 11, 2025 3:57:47 下午 ru.ifmo.lab6.server.NetworkManager handleNetworkRead
+INFO: Получен запрос от /127.0.0.1:65475
+9月 11, 2025 3:57:47 下午 ru.ifmo.lab6.server.CommandExecutor execute
+INFO: Выполнение команды HELP
+9月 11, 2025 3:57:47 下午 ru.ifmo.lab6.server.NetworkManager sendResponse
+INFO: Отправлен ответ клиенту /127.0.0.1:65475
+9月 11, 2025 3:57:51 下午 ru.ifmo.lab6.server.NetworkManager handleNetworkRead
+INFO: Получен запрос от /127.0.0.1:53993
+9月 11, 2025 3:57:51 下午 ru.ifmo.lab6.server.CommandExecutor execute
+INFO: Выполнение команды HELP
+9月 11, 2025 3:57:51 下午 ru.ifmo.lab6.server.NetworkManager sendResponse
+INFO: Отправлен ответ клиенту /127.0.0.1:53993
+9月 11, 2025 3:57:54 下午 ru.ifmo.lab6.server.NetworkManager handleNetworkRead
+INFO: Получен запрос от /127.0.0.1:53994
+9月 11, 2025 3:57:54 下午 ru.ifmo.lab6.server.CommandExecutor execute
+INFO: Выполнение команды HELP
+9月 11, 2025 3:57:54 下午 ru.ifmo.lab6.server.NetworkManager sendResponse
+INFO: Отправлен ответ клиенту /127.0.0.1:53994
+9月 11, 2025 3:57:55 下午 ru.ifmo.lab6.server.NetworkManager handleNetworkRead
+INFO: Получен запрос от /127.0.0.1:53994
+9月 11, 2025 3:57:55 下午 ru.ifmo.lab6.server.CommandExecutor execute
+INFO: Выполнение команды HELP
+9月 11, 2025 3:57:55 下午 ru.ifmo.lab6.server.NetworkManager sendResponse
+INFO: Отправлен ответ клиенту /127.0.0.1:53994
+9月 11, 2025 3:57:59 下午 ru.ifmo.lab6.server.NetworkManager handleNetworkRead
+INFO: Получен запрос от /127.0.0.1:53994
+9月 11, 2025 3:57:59 下午 ru.ifmo.lab6.server.CommandExecutor execute
+INFO: Выполнение команды SHOW
+9月 11, 2025 3:57:59 下午 ru.ifmo.lab6.server.NetworkManager sendResponse
+INFO: Отправлен ответ клиенту /127.0.0.1:53994
+9月 11, 2025 3:58:06 下午 ru.ifmo.lab6.server.NetworkManager handleNetworkRead
+INFO: Получен запрос от /127.0.0.1:53994
+9月 11, 2025 3:58:06 下午 ru.ifmo.lab6.server.CommandExecutor execute
+INFO: Выполнение команды INFO
+9月 11, 2025 3:58:06 下午 ru.ifmo.lab6.server.NetworkManager sendResponse
+INFO: Отправлен ответ клиенту /127.0.0.1:53994

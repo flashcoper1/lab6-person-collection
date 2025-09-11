@@ -11,10 +11,14 @@ import ru.ifmo.lab6.network.Request;
 import ru.ifmo.lab6.network.Response;
 import ru.ifmo.lab6.client.network.NetworkManager;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.File;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.NoSuchElementException;
+import java.util.Scanner;
+import java.util.Set;
 
 /**
  * Главный класс клиента. Управляет циклом работы,
@@ -26,6 +30,8 @@ public class Client {
     private CommandFactory commandFactory;
     private LineReader lineReader;
     private boolean running = true;
+
+    private final Set<String> scriptHistory = new HashSet<>();
 
     public Client(String host, int port) throws IOException {
         this.networkManager = new NetworkManager(host, port);
@@ -97,44 +103,123 @@ public class Client {
         while (running) {
             try {
                 String line = lineReader.readLine("> ");
-                if (line == null) break;
+                if (line == null) break; // Обработка Ctrl+D
 
                 String trimmedLine = line.trim();
                 if (trimmedLine.isEmpty()) continue;
 
-                Request request = commandFactory.createRequest(trimmedLine);
-                if (request != null) {
-                    processRequest(request);
+                String[] parts = trimmedLine.split("\\s+", 2);
+                String commandName = parts[0].toLowerCase();
+                String arg = parts.length > 1 ? parts[1] : null;
+
+                switch (commandName) {
+                    case "exit":
+                        running = false;
+                        break;
+
+                    case "execute_script":
+                        if (arg == null) {
+                            System.err.println("Ошибка: необходимо указать имя файла скрипта.");
+                        } else {
+                            executeScript(arg);
+                        }
+                        break;
+
+                    default:
+                        // Для всех остальных команд - отправляем на сервер
+                        Request request = commandFactory.createRequest(trimmedLine);
+                        if (request != null) {
+                            processRequest(request);
+                        }
+                        break;
                 }
 
             } catch (UserInterruptException e) {
-                System.out.println("\nДля выхода введите 'exit'.");
+                // Обработка Ctrl+C
+                System.out.println("\nПолучен сигнал прерывания (Ctrl+C). Завершение работы...");
+                running = false;
             } catch (NoSuchElementException e) {
+                // Если ввод был прерван в UserInputHandler
                 break;
             }
         }
         stop();
     }
 
+
+    private void executeScript(String fileName) {
+        String resolvedPath;
+        try {
+            resolvedPath = new File(fileName).getCanonicalPath();
+        } catch (IOException e) {
+            System.err.println("Ошибка при разрешении пути файла: " + fileName);
+            return;
+        }
+
+        if (scriptHistory.contains(resolvedPath)) {
+            System.err.println("Ошибка: Рекурсивный вызов скрипта! Файл '" + resolvedPath + "' уже исполняется.");
+            return;
+        }
+        scriptHistory.add(resolvedPath);
+
+        try (Scanner fileScanner = new Scanner(new File(fileName))) {
+            System.out.println("--- Исполнение скрипта: " + fileName + " ---");
+            UserInputHandler scriptInputHandler = new UserInputHandler(fileScanner);
+            CommandFactory scriptCommandFactory = new CommandFactory(scriptInputHandler);
+
+            while (fileScanner.hasNextLine()) {
+                String line = fileScanner.nextLine();
+                if (line.trim().isEmpty()) continue;
+                System.out.println("> " + line);
+
+                String[] parts = line.trim().split("\\s+", 2);
+                String commandName = parts[0].toLowerCase();
+                String arg = parts.length > 1 ? parts[1] : null;
+
+                if (commandName.equals("execute_script")) {
+                    if(arg != null){
+                        // Рекурсивный вызов этого же метода
+                        executeScript(arg);
+                    } else {
+                        System.err.println("Необходимо указать имя файла для execute_script.");
+                    }
+                } else {
+                    // Используем `this` для вызова метода этого же объекта
+                    Request request = scriptCommandFactory.createRequest(line);
+                    if (request != null) {
+                        this.processRequest(request);
+                    }
+                }
+            }
+            System.out.println("--- Завершение скрипта: " + fileName + " ---");
+        } catch (FileNotFoundException e) {
+            System.err.println("Ошибка: файл скрипта не найден: " + fileName);
+        } catch (Exception e) {
+            System.err.println("Критическая ошибка при выполнении скрипта '" + fileName + "': " + e.getMessage());
+        } finally {
+            scriptHistory.remove(resolvedPath);
+        }
+    }
+
     public void processRequest(Request request) {
         try {
             Response response = networkManager.sendAndReceive(request);
             if (response != null) {
-                handleResponse(response);
+                handleResponse(response, request);
             }
         } catch (IOException e) {
             System.err.println("Ошибка при обмене данными с сервером: " + e.getMessage());
         }
     }
 
-    private void handleResponse(Response response) {
+    private void handleResponse(Response response,Request request) {
         if (response.getStatus() == Response.Status.ERROR) {
             System.err.println("Ошибка от сервера: " + response.getMessage());
         } else {
             if (response.getMessage() != null && !response.getMessage().isEmpty()) {
                 System.out.println(response.getMessage());
             }
-            if (response.getData() != null) {
+            if (response.getData() != null && request.getCommandType() != CommandType.HELP) {
                 if (response.getData() instanceof Collection) {
                     Collection<?> collection = (Collection<?>) response.getData();
                     if (collection.isEmpty()){

@@ -21,7 +21,6 @@ import java.util.Set;
  */
 public class CommandFactory {
     private final UserInputHandler inputHandler;
-    private static final Set<String> scriptHistory = new HashSet<>();
 
     public CommandFactory(UserInputHandler inputHandler) {
         this.inputHandler = inputHandler;
@@ -80,11 +79,8 @@ public class CommandFactory {
                         return new Request(CommandType.FILTER_LESS_THAN_HAIR_COLOR, new Command.FilterLessThanHairColor(color));
                     }
 
-                    // Локальные команды клиента
-                case "exit":
-                case "execute_script":
-                    // Эти команды обрабатываются в Client.java, здесь просто возвращаем null
-                    return null;
+
+
 
                 default:
                     System.err.println("Неизвестная команда: " + commandName);
@@ -102,60 +98,5 @@ public class CommandFactory {
         return null; // В случае ошибки не отправляем запрос
     }
 
-    /**
-     * Выполняет скрипт из файла.
-     * @param fileName Имя файла.
-     * @param client Ссылка на клиент для рекурсивного вызова.
-     */
-    public static void executeScript(String fileName, Client client) {
-        String resolvedPath;
-        try {
-            resolvedPath = new File(fileName).getCanonicalPath();
-        } catch (IOException e) {
-            System.err.println("Ошибка при разрешении пути файла: " + fileName);
-            return;
-        }
 
-        if (scriptHistory.contains(resolvedPath)) {
-            System.err.println("Ошибка: Рекурсивный вызов скрипта! Файл '" + resolvedPath + "' уже исполняется.");
-            return;
-        }
-        scriptHistory.add(resolvedPath);
-
-        try (Scanner fileScanner = new Scanner(new File(fileName))) {
-            System.out.println("--- Исполнение скрипта: " + fileName + " ---");
-            UserInputHandler scriptInputHandler = new UserInputHandler(fileScanner);
-            CommandFactory scriptCommandFactory = new CommandFactory(scriptInputHandler);
-
-            while (fileScanner.hasNextLine()) {
-                String line = fileScanner.nextLine();
-                if (line.trim().isEmpty()) continue;
-                System.out.println("> " + line); // Эхо-вывод команды
-
-                String[] parts = line.trim().split("\\s+", 2);
-                String commandName = parts[0].toLowerCase();
-                String arg = parts.length > 1 ? parts[1] : null;
-
-                if (commandName.equals("execute_script")) {
-                    if(arg != null){
-                        executeScript(arg, client);
-                    } else {
-                        System.err.println("Необходимо указать имя файла для execute_script.");
-                    }
-                } else {
-                    Request request = scriptCommandFactory.createRequest(line);
-                    if (request != null) {
-                        client.processRequest(request);
-                    }
-                }
-            }
-            System.out.println("--- Завершение скрипта: " + fileName + " ---");
-        } catch (FileNotFoundException e) {
-            System.err.println("Ошибка: файл скрипта не найден: " + fileName);
-        } catch (Exception e) {
-            System.err.println("Критическая ошибка при выполнении скрипта '" + fileName + "': " + e.getMessage());
-        } finally {
-            scriptHistory.remove(resolvedPath);
-        }
-    }
 }

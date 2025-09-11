@@ -670,3 +670,201 @@ INFO: Выполнение команды HELP
 INFO: Отправлен ответ клиенту /127.0.0.1:52123
 9月 09, 2025 10:37:19 下午 ru.ifmo.lab6.server.Main lambda$main$2
 INFO: Shutdown Hook: Сохранение коллекции...
+9月 11, 2025 3:25:59 下午 ru.ifmo.lab6.server.managers.XmlFileManager load
+INFO: Коллекция успешно загружена. Элементов: 0
+9月 11, 2025 3:26:00 下午 ru.ifmo.lab6.server.NetworkManager setup
+INFO: Сетевой модуль готов. Сервер слушает порт 12345
+9月 11, 2025 3:26:00 下午 ru.ifmo.lab6.server.NetworkManager registerConsoleChannel
+INFO: Канал для консольных команд успешно зарегистрирован.
+9月 11, 2025 3:26:20 下午 ru.ifmo.lab6.server.NetworkManager handleNetworkRead
+INFO: Получен запрос от /127.0.0.1:61227
+9月 11, 2025 3:26:20 下午 ru.ifmo.lab6.server.CommandExecutor execute
+INFO: Выполнение команды HELP
+9月 11, 2025 3:26:20 下午 ru.ifmo.lab6.server.NetworkManager sendResponse
+INFO: Отправлен ответ клиенту /127.0.0.1:61227
+9月 11, 2025 3:26:56 下午 ru.ifmo.lab6.server.NetworkManager handleNetworkRead
+INFO: Получен запрос от /127.0.0.1:61227
+9月 11, 2025 3:26:56 下午 ru.ifmo.lab6.server.CommandExecutor execute
+INFO: Выполнение команды ADD_IF_MIN
+9月 11, 2025 3:26:56 下午 ru.ifmo.lab6.server.NetworkManager sendResponse
+INFO: Отправлен ответ клиенту /127.0.0.1:61227
+9月 11, 2025 3:27:00 下午 ru.ifmo.lab6.server.NetworkManager handleNetworkRead
+INFO: Получен запрос от /127.0.0.1:61227
+9月 11, 2025 3:27:00 下午 ru.ifmo.lab6.server.CommandExecutor execute
+INFO: Выполнение команды SHOW
+9月 11, 2025 3:27:00 下午 ru.ifmo.lab6.server.NetworkManager sendResponse
+INFO: Отправлен ответ клиенту /127.0.0.1:61227
+9月 11, 2025 3:27:20 下午 ru.ifmo.lab6.server.NetworkManager handleNetworkRead
+INFO: Получен запрос от /127.0.0.1:61227
+9月 11, 2025 3:27:20 下午 ru.ifmo.lab6.server.CommandExecutor execute
+INFO: Выполнение команды SHOW
+9月 11, 2025 3:27:20 下午 ru.ifmo.lab6.server.NetworkManager sendResponse
+INFO: Отправлен ответ клиенту /127.0.0.1:61227
+9月 11, 2025 3:28:14 下午 ru.ifmo.lab6.server.NetworkManager handleNetworkRead
+INFO: Получен запрос от /127.0.0.1:61227
+9月 11, 2025 3:28:14 下午 ru.ifmo.lab6.server.CommandExecutor execute
+INFO: Выполнение команды AVERAGE_OF_HEIGHT
+9月 11, 2025 3:28:14 下午 ru.ifmo.lab6.server.NetworkManager sendResponse
+INFO: Отправлен ответ клиенту /127.0.0.1:61227
+9月 11, 2025 3:37:22 下午 ru.ifmo.lab6.server.managers.XmlFileManager load
+INFO: Коллекция успешно загружена. Элементов: 1
+9月 11, 2025 3:37:23 下午 ru.ifmo.lab6.server.NetworkManager setup
+INFO: Сетевой модуль готов. Сервер слушает порт 12345
+9月 11, 2025 3:37:23 下午 ru.ifmo.lab6.server.NetworkManager registerConsoleChannel
+INFO: Канал для консольных команд успешно зарегистрирован.
+9月 11, 2025 3:38:14 下午 ru.ifmo.lab6.server.managers.XmlFileManager load
+INFO: Коллекция успешно загружена. Элементов: 1
+9月 11, 2025 3:38:14 下午 ru.ifmo.lab6.server.NetworkManager setup
+INFO: Сетевой модуль готов. Сервер слушает порт 12345
+9月 11, 2025 3:38:14 下午 ru.ifmo.lab6.server.NetworkManager registerConsoleChannel
+INFO: Канал для консольных команд успешно зарегистрирован.
+9月 11, 2025 3:38:48 下午 ru.ifmo.lab6.server.NetworkManager handleNetworkRead
+INFO: Получен запрос от /127.0.0.1:64957
+9月 11, 2025 3:38:48 下午 ru.ifmo.lab6.server.CommandExecutor execute
+INFO: Выполнение команды HELP
+9月 11, 2025 3:38:48 下午 ru.ifmo.lab6.server.NetworkManager sendResponse
+INFO: Отправлен ответ клиенту /127.0.0.1:64957
+9月 11, 2025 3:38:52 下午 ru.ifmo.lab6.server.NetworkManager handleNetworkRead
+INFO: Получен запрос от /127.0.0.1:64957
+9月 11, 2025 3:38:52 下午 ru.ifmo.lab6.server.CommandExecutor execute
+INFO: Выполнение команды HELP
+9月 11, 2025 3:38:52 下午 ru.ifmo.lab6.server.NetworkManager sendResponse
+INFO: Отправлен ответ клиенту /127.0.0.1:64957
+9月 11, 2025 3:39:05 下午 ru.ifmo.lab6.server.NetworkManager handleNetworkRead
+INFO: Получен запрос от /127.0.0.1:64957
+9月 11, 2025 3:39:05 下午 ru.ifmo.lab6.server.CommandExecutor execute
+INFO: Выполнение команды SHOW
+9月 11, 2025 3:39:05 下午 ru.ifmo.lab6.server.NetworkManager sendResponse
+INFO: Отправлен ответ клиенту /127.0.0.1:64957
+9月 11, 2025 3:39:27 下午 ru.ifmo.lab6.server.NetworkManager handleNetworkRead
+INFO: Получен запрос от /127.0.0.1:64391
+9月 11, 2025 3:39:27 下午 ru.ifmo.lab6.server.CommandExecutor execute
+INFO: Выполнение команды HELP
+9月 11, 2025 3:39:27 下午 ru.ifmo.lab6.server.NetworkManager sendResponse
+INFO: Отправлен ответ клиенту /127.0.0.1:64391
+9月 11, 2025 3:39:30 下午 ru.ifmo.lab6.server.NetworkManager handleNetworkRead
+INFO: Получен запрос от /127.0.0.1:64391
+9月 11, 2025 3:39:30 下午 ru.ifmo.lab6.server.CommandExecutor execute
+INFO: Выполнение команды HELP
+9月 11, 2025 3:39:30 下午 ru.ifmo.lab6.server.NetworkManager sendResponse
+INFO: Отправлен ответ клиенту /127.0.0.1:64391
+9月 11, 2025 3:43:41 下午 ru.ifmo.lab6.server.NetworkManager handleNetworkRead
+INFO: Получен запрос от /127.0.0.1:64391
+9月 11, 2025 3:43:41 下午 ru.ifmo.lab6.server.CommandExecutor execute
+INFO: Выполнение команды HELP
+9月 11, 2025 3:43:41 下午 ru.ifmo.lab6.server.NetworkManager sendResponse
+INFO: Отправлен ответ клиенту /127.0.0.1:64391
+9月 11, 2025 3:44:15 下午 ru.ifmo.lab6.server.managers.XmlFileManager load
+INFO: Коллекция успешно загружена. Элементов: 1
+9月 11, 2025 3:44:15 下午 ru.ifmo.lab6.server.NetworkManager setup
+INFO: Сетевой модуль готов. Сервер слушает порт 12345
+9月 11, 2025 3:44:15 下午 ru.ifmo.lab6.server.NetworkManager registerConsoleChannel
+INFO: Канал для консольных команд успешно зарегистрирован.
+9月 11, 2025 3:44:26 下午 ru.ifmo.lab6.server.NetworkManager handleNetworkRead
+INFO: Получен запрос от /127.0.0.1:58331
+9月 11, 2025 3:44:26 下午 ru.ifmo.lab6.server.CommandExecutor execute
+INFO: Выполнение команды HELP
+9月 11, 2025 3:44:26 下午 ru.ifmo.lab6.server.NetworkManager sendResponse
+INFO: Отправлен ответ клиенту /127.0.0.1:58331
+9月 11, 2025 3:44:29 下午 ru.ifmo.lab6.server.NetworkManager handleNetworkRead
+INFO: Получен запрос от /127.0.0.1:58331
+9月 11, 2025 3:44:29 下午 ru.ifmo.lab6.server.CommandExecutor execute
+INFO: Выполнение команды HELP
+9月 11, 2025 3:44:29 下午 ru.ifmo.lab6.server.NetworkManager sendResponse
+INFO: Отправлен ответ клиенту /127.0.0.1:58331
+9月 11, 2025 3:44:33 下午 ru.ifmo.lab6.server.NetworkManager handleNetworkRead
+INFO: Получен запрос от /127.0.0.1:58331
+9月 11, 2025 3:44:33 下午 ru.ifmo.lab6.server.CommandExecutor execute
+INFO: Выполнение команды SHOW
+9月 11, 2025 3:44:33 下午 ru.ifmo.lab6.server.NetworkManager sendResponse
+INFO: Отправлен ответ клиенту /127.0.0.1:58331
+9月 11, 2025 3:44:36 下午 ru.ifmo.lab6.server.NetworkManager handleNetworkRead
+INFO: Получен запрос от /127.0.0.1:58331
+9月 11, 2025 3:44:36 下午 ru.ifmo.lab6.server.CommandExecutor execute
+INFO: Выполнение команды HELP
+9月 11, 2025 3:44:36 下午 ru.ifmo.lab6.server.NetworkManager sendResponse
+INFO: Отправлен ответ клиенту /127.0.0.1:58331
+9月 11, 2025 3:44:40 下午 ru.ifmo.lab6.server.NetworkManager handleNetworkRead
+INFO: Получен запрос от /127.0.0.1:53592
+9月 11, 2025 3:44:40 下午 ru.ifmo.lab6.server.CommandExecutor execute
+INFO: Выполнение команды HELP
+9月 11, 2025 3:44:40 下午 ru.ifmo.lab6.server.NetworkManager sendResponse
+INFO: Отправлен ответ клиенту /127.0.0.1:53592
+9月 11, 2025 3:44:50 下午 ru.ifmo.lab6.server.NetworkManager handleNetworkRead
+INFO: Получен запрос от /127.0.0.1:53592
+9月 11, 2025 3:44:50 下午 ru.ifmo.lab6.server.CommandExecutor execute
+INFO: Выполнение команды AVERAGE_OF_HEIGHT
+9月 11, 2025 3:44:50 下午 ru.ifmo.lab6.server.NetworkManager sendResponse
+INFO: Отправлен ответ клиенту /127.0.0.1:53592
+9月 11, 2025 3:54:40 下午 ru.ifmo.lab6.server.managers.XmlFileManager load
+INFO: Коллекция успешно загружена. Элементов: 1
+9月 11, 2025 3:54:40 下午 ru.ifmo.lab6.server.NetworkManager setup
+INFO: Сетевой модуль готов. Сервер слушает порт 12345
+9月 11, 2025 3:54:40 下午 ru.ifmo.lab6.server.NetworkManager registerConsoleChannel
+INFO: Канал для консольных команд успешно зарегистрирован.
+9月 11, 2025 3:55:00 下午 ru.ifmo.lab6.server.NetworkManager handleNetworkRead
+INFO: Получен запрос от /127.0.0.1:60457
+9月 11, 2025 3:55:00 下午 ru.ifmo.lab6.server.CommandExecutor execute
+INFO: Выполнение команды HELP
+9月 11, 2025 3:55:00 下午 ru.ifmo.lab6.server.NetworkManager sendResponse
+INFO: Отправлен ответ клиенту /127.0.0.1:60457
+9月 11, 2025 3:55:02 下午 ru.ifmo.lab6.server.NetworkManager handleNetworkRead
+INFO: Получен запрос от /127.0.0.1:60457
+9月 11, 2025 3:55:02 下午 ru.ifmo.lab6.server.CommandExecutor execute
+INFO: Выполнение команды HELP
+9月 11, 2025 3:55:02 下午 ru.ifmo.lab6.server.NetworkManager sendResponse
+INFO: Отправлен ответ клиенту /127.0.0.1:60457
+9月 11, 2025 3:55:09 下午 ru.ifmo.lab6.server.NetworkManager handleNetworkRead
+INFO: Получен запрос от /127.0.0.1:60457
+9月 11, 2025 3:55:09 下午 ru.ifmo.lab6.server.CommandExecutor execute
+INFO: Выполнение команды ADD
+9月 11, 2025 3:55:09 下午 ru.ifmo.lab6.server.NetworkManager sendResponse
+INFO: Отправлен ответ клиенту /127.0.0.1:60457
+9月 11, 2025 3:55:09 下午 ru.ifmo.lab6.server.NetworkManager handleNetworkRead
+INFO: Получен запрос от /127.0.0.1:60457
+9月 11, 2025 3:55:09 下午 ru.ifmo.lab6.server.CommandExecutor execute
+INFO: Выполнение команды ADD
+9月 11, 2025 3:55:09 下午 ru.ifmo.lab6.server.NetworkManager sendResponse
+INFO: Отправлен ответ клиенту /127.0.0.1:60457
+9月 11, 2025 3:55:09 下午 ru.ifmo.lab6.server.NetworkManager handleNetworkRead
+INFO: Получен запрос от /127.0.0.1:60457
+9月 11, 2025 3:55:09 下午 ru.ifmo.lab6.server.CommandExecutor execute
+INFO: Выполнение команды ADD
+9月 11, 2025 3:55:09 下午 ru.ifmo.lab6.server.NetworkManager sendResponse
+INFO: Отправлен ответ клиенту /127.0.0.1:60457
+9月 11, 2025 3:55:09 下午 ru.ifmo.lab6.server.NetworkManager handleNetworkRead
+INFO: Получен запрос от /127.0.0.1:60457
+9月 11, 2025 3:55:09 下午 ru.ifmo.lab6.server.CommandExecutor execute
+INFO: Выполнение команды INFO
+9月 11, 2025 3:55:09 下午 ru.ifmo.lab6.server.NetworkManager sendResponse
+INFO: Отправлен ответ клиенту /127.0.0.1:60457
+9月 11, 2025 3:55:09 下午 ru.ifmo.lab6.server.NetworkManager handleNetworkRead
+INFO: Получен запрос от /127.0.0.1:60457
+9月 11, 2025 3:55:09 下午 ru.ifmo.lab6.server.CommandExecutor execute
+INFO: Выполнение команды SHOW
+9月 11, 2025 3:55:09 下午 ru.ifmo.lab6.server.NetworkManager sendResponse
+INFO: Отправлен ответ клиенту /127.0.0.1:60457
+9月 11, 2025 3:55:09 下午 ru.ifmo.lab6.server.NetworkManager handleNetworkRead
+INFO: Получен запрос от /127.0.0.1:60457
+9月 11, 2025 3:55:09 下午 ru.ifmo.lab6.server.CommandExecutor execute
+INFO: Выполнение команды COUNT_BY_HAIR_COLOR
+9月 11, 2025 3:55:09 下午 ru.ifmo.lab6.server.NetworkManager sendResponse
+INFO: Отправлен ответ клиенту /127.0.0.1:60457
+9月 11, 2025 3:55:09 下午 ru.ifmo.lab6.server.NetworkManager handleNetworkRead
+INFO: Получен запрос от /127.0.0.1:60457
+9月 11, 2025 3:55:09 下午 ru.ifmo.lab6.server.CommandExecutor execute
+INFO: Выполнение команды FILTER_LESS_THAN_HAIR_COLOR
+9月 11, 2025 3:55:09 下午 ru.ifmo.lab6.server.NetworkManager sendResponse
+INFO: Отправлен ответ клиенту /127.0.0.1:60457
+9月 11, 2025 3:55:09 下午 ru.ifmo.lab6.server.NetworkManager handleNetworkRead
+INFO: Получен запрос от /127.0.0.1:60457
+9月 11, 2025 3:55:09 下午 ru.ifmo.lab6.server.CommandExecutor execute
+INFO: Выполнение команды HELP
+9月 11, 2025 3:55:09 下午 ru.ifmo.lab6.server.NetworkManager sendResponse
+INFO: Отправлен ответ клиенту /127.0.0.1:60457
+9月 11, 2025 3:55:11 下午 ru.ifmo.lab6.server.NetworkManager handleNetworkRead
+INFO: Получен запрос от /127.0.0.1:60457
+9月 11, 2025 3:55:11 下午 ru.ifmo.lab6.server.CommandExecutor execute
+INFO: Выполнение команды SHOW
+9月 11, 2025 3:55:11 下午 ru.ifmo.lab6.server.NetworkManager sendResponse
+INFO: Отправлен ответ клиенту /127.0.0.1:60457

@@ -1,2 +1,22 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<persons/>
+<persons>
+    <person>
+        <id>1</id>
+        <name>123</name>
+        <coordinates>
+            <x>123.0</x>
+            <y>123.0</y>
+        </coordinates>
+        <creationDate>2025-09-11T15:26:56.2596874</creationDate>
+        <height>123</height>
+        <eyeColor>RED</eyeColor>
+        <hairColor>GREEN</hairColor>
+        <nationality>INDIA</nationality>
+        <location>
+            <x>12.0</x>
+            <y>123.0</y>
+            <z>123.0</z>
+            <name>123</name>
+        </location>
+    </person>
+</persons>

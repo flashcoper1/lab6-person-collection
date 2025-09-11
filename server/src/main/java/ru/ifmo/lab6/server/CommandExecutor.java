@@ -39,16 +39,12 @@ public class CommandExecutor {
 
         try {
             switch (type) {
-                // Команды без аргументов
                 case HELP:
                     String helpMessage = getHelpMessage();
-                    // 2. Формируем список имен команд для автодополнения
                     ArrayList<String> commandSignatures = Arrays.stream(CommandType.values())
                             .map(CommandType::getSignature)
-                            // Убираем аргументы {element}, id и т.д. для чистого автодополнения
                             .map(s -> s.split(" ")[0])
                             .collect(Collectors.toCollection(ArrayList::new));
-                    // 3. Отправляем и текст справки, и список команд
                     return new Response(Response.Status.SUCCESS, helpMessage, commandSignatures);
                 case INFO:
                     return new Response(Response.Status.SUCCESS, collectionManager.getInfo());
@@ -63,12 +59,11 @@ public class CommandExecutor {
                             : "Средний рост: " + String.format("%.2f", avg);
                     return new Response(Response.Status.SUCCESS, avgMessage);
 
-                // Команды с аргументами, обработанные с помощью Pattern Matching
                 case ADD:
                     if (args instanceof Command.Add addArgs) {
                         return new Response(Response.Status.SUCCESS, collectionManager.add(addArgs.person));
                     }
-                    break; // break, чтобы попасть в общую обработку ошибки типа
+                    break;
 
                 case UPDATE:
                     if (args instanceof Command.Update updateArgs) {
@@ -118,11 +113,9 @@ public class CommandExecutor {
                     return new Response(Response.Status.ERROR, "Неизвестная или неподдерживаемая команда на сервере: " + type);
             }
 
-            // Если мы дошли сюда, значит, `instanceof` проверка для команды с аргументом провалилась
             return new Response(Response.Status.ERROR, "Некорректный тип аргумента для команды " + type);
 
         } catch (Exception e) {
-            // Этот блок теперь будет ловить только непредвиденные ошибки, а не ClassCastException
             LOGGER.severe("Ошибка при выполнении команды " + type + ": " + e.getMessage());
             return new Response(Response.Status.ERROR, "Внутренняя ошибка сервера при выполнении команды: " + e.getMessage());
         }

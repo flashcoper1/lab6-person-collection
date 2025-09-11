@@ -41,12 +41,11 @@ public enum Color implements Serializable {
     public static String listValues() {
         StringBuilder sb = new StringBuilder();
         for (Color color : values()) {
-            sb.append(color.name()) // само имя константы, например, "RED"
+            sb.append(color.name())
                     .append(" (")
-                    .append(color.getRussianName()) // его русское название
+                    .append(color.getRussianName())
                     .append("), ");
         }
-        // Удаляем последнюю запятую и пробел для красивого вывода
         if (sb.length() > 2) {
             sb.setLength(sb.length() - 2);
         }

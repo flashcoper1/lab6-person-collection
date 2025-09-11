@@ -19,7 +19,6 @@ import java.util.logging.Logger;
 public class Main {
     private static final Logger LOGGER = Logger.getLogger(Main.class.getName());
 
-    // volatile гарантирует, что изменения этого флага будут видны всем потокам немедленно.
     private volatile boolean running = true;
 
     private final XmlFileManager xmlFileManager;
@@ -36,21 +35,17 @@ public class Main {
 
     public void start() {
         try {
-            // 1. Настройка сетевых компонентов
             networkManager.setup();
             networkManager.registerConsoleChannel(consolePipe.source(), this::handleConsoleCommand);
 
-            // 2. Запуск фонового потока для чтения консоли
             Thread consoleInputThread = new Thread(this::readConsoleInput);
             consoleInputThread.setDaemon(true);
             consoleInputThread.start();
 
-            // 3. Регистрация Shutdown Hook
             Runtime.getRuntime().addShutdownHook(new Thread(this::shutdown));
 
             System.out.println("Сервер запущен. Введите 'save' для сохранения или 'exit' для завершения.");
 
-            // 4. Главный цикл событий
             while (running) {
                 networkManager.processEvents();
             }
@@ -58,7 +53,6 @@ public class Main {
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Произошла критическая ошибка в главном цикле сервера", e);
         } finally {
-            // 5. Корректное завершение
             stop();
         }
     }
@@ -109,8 +103,6 @@ public class Main {
     }
 
     private void shutdown() {
-        // Этот метод может быть вызван как из Shutdown Hook, так и при штатном завершении
-        // Логика сохранения вынесена сюда, чтобы избежать дублирования
         xmlFileManager.save(collectionManager.getCollection());
         LOGGER.info("Коллекция сохранена.");
     }

@@ -26,10 +26,7 @@ public class XmlFileManager {
     private static final Logger LOGGER = Logger.getLogger(XmlFileManager.class.getName());
     private final String filePath;
 
-    // --- КЛЮЧЕВОЕ ИЗМЕНЕНИЕ ---
-    // Класс-обертка ОБЯЗАТЕЛЬНО должен быть СТАТИЧЕСКИМ (static),
-    // чтобы JAXB не пытался сериализовать внешний класс XmlFileManager,
-    // что приводит к StackOverflowError.
+    // Вспомогательный класс-обертка для корректной сериализации/десериализации TreeSet
     @XmlRootElement(name = "persons")
     @XmlAccessorType(XmlAccessType.FIELD)
     private static class PersonWrapper { // Добавлено ключевое слово 'static'
@@ -46,7 +43,6 @@ public class XmlFileManager {
             return persons;
         }
     }
-    // -------------------------
 
     public XmlFileManager(String filePath) {
         this.filePath = filePath.replace("\"", "");
@@ -63,7 +59,6 @@ public class XmlFileManager {
             return new TreeSet<>();
         }
         try (InputStreamReader reader = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8)) {
-            // JAXBContext должен знать обо всех классах, которые он будет встречать
             JAXBContext context = JAXBContext.newInstance(PersonWrapper.class, Person.class, Coordinates.class, Location.class);
             Unmarshaller unmarshaller = context.createUnmarshaller();
             PersonWrapper wrapper = (PersonWrapper) unmarshaller.unmarshal(reader);
@@ -78,14 +73,12 @@ public class XmlFileManager {
 
     public void save(TreeSet<Person> collection) {
         try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePath), StandardCharsets.UTF_8))) {
-            // JAXBContext должен знать обо всех классах, которые он будет встречать
             JAXBContext context = JAXBContext.newInstance(PersonWrapper.class, Person.class, Coordinates.class, Location.class);
             Marshaller marshaller = context.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
             PersonWrapper wrapper = new PersonWrapper(collection);
             marshaller.marshal(wrapper, writer);
         } catch (Exception e) {
-            // Эта ошибка теперь должна быть поймана и выведена в лог, если она произойдет.
             LOGGER.log(Level.SEVERE, "Произошла ошибка при сохранении коллекции в файл!", e);
         }
     }

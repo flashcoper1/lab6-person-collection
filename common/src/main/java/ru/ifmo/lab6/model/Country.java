@@ -38,12 +38,11 @@ public enum Country implements Serializable {
     public static String listValues() {
         StringBuilder sb = new StringBuilder();
         for (Country country : values()) {
-            sb.append(country.name()) // само имя константы, например, "INDIA"
+            sb.append(country.name())
                     .append(" (")
-                    .append(country.getRussianName()) // его русское название
+                    .append(country.getRussianName())
                     .append("), ");
         }
-        // Удаляем последнюю запятую и пробел для красивого вывода
         if (sb.length() > 2) {
             sb.setLength(sb.length() - 2);
         }

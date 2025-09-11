@@ -11,7 +11,7 @@ import jakarta.xml.bind.annotation.XmlAccessorType;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Coordinates implements Serializable {
-    private static final long serialVersionUID = 1L; // Версия для сериализации
+    private static final long serialVersionUID = 1L;
 
     private Double x; //Поле не может быть null, Максимальное значение поля: 348
     private float y;

@@ -6,19 +6,18 @@ import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import ru.ifmo.lab6.client.managers.CommandFactory;
 import ru.ifmo.lab6.client.managers.UserInputHandler;
+import ru.ifmo.lab6.client.util.ConsoleInputProvider;
+import ru.ifmo.lab6.client.util.ScriptInputProvider;
 import ru.ifmo.lab6.network.CommandType;
 import ru.ifmo.lab6.network.Request;
 import ru.ifmo.lab6.network.Response;
 import ru.ifmo.lab6.client.network.NetworkManager;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.File;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.NoSuchElementException;
-import java.util.Scanner;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Главный класс клиента. Управляет циклом работы,
@@ -36,19 +35,17 @@ public class Client {
     public Client(String host, int port) throws IOException {
         this.networkManager = new NetworkManager(host, port);
         this.terminal = TerminalBuilder.builder().system(true).build();
-        // Создаем временный LineReader для диалога с пользователем при ошибках подключения
-        this.lineReader = LineReaderBuilder.builder().terminal(terminal).build();
     }
 
     /**
-     * Инициализирует клиент: получает список команд с сервера для автодополнения.
-     * @return true, если инициализация успешна, false - если пользователь отказался.
+     * Инициализирует клиент. Пытается подключиться к серверу для получения актуальных
+     * команд. В случае неудачи настраивает клиент с базовым набором команд.
+     * Этот метод гарантирует, что клиент будет готов к работе в любом случае.
      */
-    public boolean initialize() {
+    public void initialize() {
         while (true) {
             System.out.println("Попытка подключения к серверу для настройки автодополнения...");
             try {
-                // Отправляем HELP, чтобы получить и справку, и список команд
                 Request helpRequest = new Request(CommandType.HELP);
                 Response response = networkManager.sendAndReceive(helpRequest);
 
@@ -57,44 +54,67 @@ public class Client {
 
                     @SuppressWarnings("unchecked")
                     Collection<String> commands = (Collection<String>) response.getData();
-
                     Completer completer = new StringsCompleter(commands);
 
-                    // Пересоздаем LineReader с настроенным автодополнением
                     this.lineReader = LineReaderBuilder.builder()
                             .terminal(terminal)
                             .completer(completer)
                             .build();
 
-                    // Теперь создаем CommandFactory с правильным LineReader'ом
-                    UserInputHandler consoleInputHandler = new UserInputHandler(lineReader);
+                    UserInputHandler consoleInputHandler = new UserInputHandler(new ConsoleInputProvider(lineReader));
                     this.commandFactory = new CommandFactory(consoleInputHandler);
 
-                    // Выводим приветственное сообщение и справку
                     System.out.println("\n" + response.getMessage());
-                    return true; // Успех
+                    return;
 
                 } else {
                     throw new IOException("Сервер вернул некорректный ответ.");
                 }
 
             } catch (IOException e) {
-                System.err.println("Ошибка инициализации: " + e.getMessage());
+                System.err.println("Ошибка подключения: " + e.getMessage());
                 try {
-                    String answer = lineReader.readLine("Повторить попытку? (yes/no): ").trim().toLowerCase();
-                    if (!answer.equals("yes") && !answer.equals("y")) {
-                        return false; // Пользователь отказался
+                    LineReader tempReader = LineReaderBuilder.builder().terminal(terminal).build();
+                    String answer = tempReader.readLine("Повторить попытку? (yes/no): ").trim().toLowerCase();
+                    if (!"yes".equals(answer) && !"y".equals(answer)) {
+                        break;
                     }
                 } catch (UserInterruptException | EndOfFileException ex) {
-                    return false;
+                    break;
                 }
             }
         }
+        setupDefaultComponents();
     }
+
+    /**
+     * Настраивает компоненты клиента с базовым (неполным) функционалом,
+     * когда сервер недоступен при запуске.
+     */
+    private void setupDefaultComponents() {
+        System.out.println("\nВНИМАНИЕ: Не удалось получить список команд с сервера.");
+        System.out.println("Клиент запускается в автономном режиме. Автодополнение будет основано на стандартном списке команд.");
+
+        Completer defaultCompleter = new StringsCompleter(
+                Arrays.stream(CommandType.values())
+                        .map(CommandType::getSignature)
+                        .map(s -> s.split(" ")[0])
+                        .collect(Collectors.toList())
+        );
+
+        this.lineReader = LineReaderBuilder.builder()
+                .terminal(terminal)
+                .completer(defaultCompleter)
+                .build();
+
+        UserInputHandler consoleInputHandler = new UserInputHandler(new ConsoleInputProvider(lineReader));
+        this.commandFactory = new CommandFactory(consoleInputHandler);
+    }
+
 
     public void run() {
         if (commandFactory == null) {
-            System.err.println("Клиент не был инициализирован. Завершение работы.");
+            System.err.println("Критическая ошибка: клиент не был инициализирован. Завершение работы.");
             return;
         }
 
@@ -103,7 +123,7 @@ public class Client {
         while (running) {
             try {
                 String line = lineReader.readLine("> ");
-                if (line == null) break; // Обработка Ctrl+D
+                if (line == null) break;
 
                 String trimmedLine = line.trim();
                 if (trimmedLine.isEmpty()) continue;
@@ -116,7 +136,6 @@ public class Client {
                     case "exit":
                         running = false;
                         break;
-
                     case "execute_script":
                         if (arg == null) {
                             System.err.println("Ошибка: необходимо указать имя файла скрипта.");
@@ -124,28 +143,21 @@ public class Client {
                             executeScript(arg);
                         }
                         break;
-
                     default:
-                        // Для всех остальных команд - отправляем на сервер
                         Request request = commandFactory.createRequest(trimmedLine);
                         if (request != null) {
                             processRequest(request);
                         }
                         break;
                 }
-
             } catch (UserInterruptException e) {
-                // Обработка Ctrl+C
-                System.out.println("\nПолучен сигнал прерывания (Ctrl+C). Завершение работы...");
-                running = false;
+                System.out.println("\nПолучен сигнал прерывания (Ctrl+C). Для выхода введите 'exit'.");
             } catch (NoSuchElementException e) {
-                // Если ввод был прерван в UserInputHandler
-                break;
+                System.err.println("\nПоток ввода был неожиданно прерван. Для выхода введите 'exit'.");
             }
         }
         stop();
     }
-
 
     private void executeScript(String fileName) {
         String resolvedPath;
@@ -164,31 +176,32 @@ public class Client {
 
         try (Scanner fileScanner = new Scanner(new File(fileName))) {
             System.out.println("--- Исполнение скрипта: " + fileName + " ---");
-            UserInputHandler scriptInputHandler = new UserInputHandler(fileScanner);
+            UserInputHandler scriptInputHandler = new UserInputHandler(new ScriptInputProvider(fileScanner));
             CommandFactory scriptCommandFactory = new CommandFactory(scriptInputHandler);
 
-            while (fileScanner.hasNextLine()) {
-                String line = fileScanner.nextLine();
-                if (line.trim().isEmpty()) continue;
-                System.out.println("> " + line);
+            while (true) {
+                try {
+                    String line = scriptInputHandler.readLine("");
+                    if (line.trim().isEmpty()) continue;
 
-                String[] parts = line.trim().split("\\s+", 2);
-                String commandName = parts[0].toLowerCase();
-                String arg = parts.length > 1 ? parts[1] : null;
+                    String[] parts = line.trim().split("\\s+", 2);
+                    String commandName = parts[0].toLowerCase();
+                    String arg = parts.length > 1 ? parts[1] : null;
 
-                if (commandName.equals("execute_script")) {
-                    if(arg != null){
-                        // Рекурсивный вызов этого же метода
-                        executeScript(arg);
+                    if (commandName.equals("execute_script")) {
+                        if (arg != null) {
+                            executeScript(arg);
+                        } else {
+                            System.err.println("Необходимо указать имя файла для execute_script.");
+                        }
                     } else {
-                        System.err.println("Необходимо указать имя файла для execute_script.");
+                        Request request = scriptCommandFactory.createRequest(line);
+                        if (request != null) {
+                            this.processRequest(request);
+                        }
                     }
-                } else {
-                    // Используем `this` для вызова метода этого же объекта
-                    Request request = scriptCommandFactory.createRequest(line);
-                    if (request != null) {
-                        this.processRequest(request);
-                    }
+                } catch (NoSuchElementException e) {
+                    break;
                 }
             }
             System.out.println("--- Завершение скрипта: " + fileName + " ---");
@@ -196,6 +209,7 @@ public class Client {
             System.err.println("Ошибка: файл скрипта не найден: " + fileName);
         } catch (Exception e) {
             System.err.println("Критическая ошибка при выполнении скрипта '" + fileName + "': " + e.getMessage());
+            e.printStackTrace();
         } finally {
             scriptHistory.remove(resolvedPath);
         }

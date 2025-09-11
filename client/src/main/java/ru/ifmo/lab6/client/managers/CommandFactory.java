@@ -1,19 +1,13 @@
 package ru.ifmo.lab6.client.managers;
 
-import ru.ifmo.lab6.client.Client;
 import ru.ifmo.lab6.command.Command;
 import ru.ifmo.lab6.model.Color;
 import ru.ifmo.lab6.model.Person;
 import ru.ifmo.lab6.network.CommandType;
 import ru.ifmo.lab6.network.Request;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.HashSet;
+
 import java.util.NoSuchElementException;
-import java.util.Scanner;
-import java.util.Set;
 
 /**
  * Создает объекты Request на основе ввода пользователя.
@@ -38,7 +32,6 @@ public class CommandFactory {
 
         try {
             switch (commandName) {
-                // Команды, отправляемые на сервер
                 case "help": return new Request(CommandType.HELP);
                 case "info": return new Request(CommandType.INFO);
                 case "show": return new Request(CommandType.SHOW);
@@ -84,7 +77,7 @@ public class CommandFactory {
 
                 default:
                     System.err.println("Неизвестная команда: " + commandName);
-                    return new Request(CommandType.HELP); // Показываем помощь по умолчанию
+                    return new Request(CommandType.HELP);
             }
         } catch (NumberFormatException e) {
             System.err.println("Ошибка: Аргумент должен быть числом.");
@@ -95,7 +88,7 @@ public class CommandFactory {
         } catch (Exception e) {
             System.err.println("Произошла непредвиденная ошибка при создании команды: " + e.getMessage());
         }
-        return null; // В случае ошибки не отправляем запрос
+        return null;
     }
 
 

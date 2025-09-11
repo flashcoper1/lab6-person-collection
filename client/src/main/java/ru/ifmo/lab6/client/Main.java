@@ -27,13 +27,10 @@ public class Main {
 
         try {
             Client client = new Client(host, port);
-            if (client.initialize()) {
-                client.run();
-            } else {
-                System.out.println("Завершение работы клиента.");
-            }
+            client.initialize();
+            client.run();
         } catch (IOException e) {
-            System.err.println("Не удалось подключиться к серверу: " + e.getMessage());
+            System.err.println("Критическая ошибка при создании клиента: " + e.getMessage());
         }
     }
 }

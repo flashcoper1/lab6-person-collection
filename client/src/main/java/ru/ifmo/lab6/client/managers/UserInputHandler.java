@@ -1,56 +1,42 @@
 package ru.ifmo.lab6.client.managers;
 
-import org.jline.reader.LineReader;
-import org.jline.reader.UserInterruptException;
-import ru.ifmo.lab6.model.*;
+import ru.ifmo.lab6.client.util.InputProvider;
+import ru.ifmo.lab6.model.Color;
+import ru.ifmo.lab6.model.Coordinates;
+import ru.ifmo.lab6.model.Country;
+import ru.ifmo.lab6.model.Location;
+import ru.ifmo.lab6.model.Person;
 
 import java.util.NoSuchElementException;
 
 /**
  * Обрабатывает ввод данных пользователем для создания объектов.
- * В этой версии он работает ИСКЛЮЧИТЕЛЬНО с LineReader для консоли
- * или с переданным Scanner для скриптов, чтобы избежать конфликтов.
+ * Полностью абстрагирован от источника ввода через интерфейс InputProvider.
+ * Может работать как с интерактивной консолью, так и с файлом скрипта без изменения кода.
  */
 public class UserInputHandler {
-    private final LineReader lineReader; // Для интерактивного ввода
-    private final java.util.Scanner scriptScanner; // Для ввода из файла
-    private final boolean isScript;
+    /**
+     * Поставщик ввода, который инкапсулирует логику чтения из конкретного источника.
+     */
+    private final InputProvider provider;
 
-    // Конструктор для работы с консолью
-    public UserInputHandler(LineReader lineReader) {
-        this.lineReader = lineReader;
-        this.scriptScanner = null;
-        this.isScript = false;
-    }
-
-    // Конструктор для работы со скриптом
-    public UserInputHandler(java.util.Scanner scriptScanner) {
-        this.lineReader = null;
-        this.scriptScanner = scriptScanner;
-        this.isScript = true;
+    /**
+     * Конструктор, который принимает любую реализацию InputProvider.
+     * @param provider Поставщик ввода (например, из консоли или файла).
+     */
+    public UserInputHandler(InputProvider provider) {
+        this.provider = provider;
     }
 
     /**
-     * Читает одну строку ввода, используя правильный источник (консоль или файл).
-     * @param prompt Приглашение к вводу для консоли.
+     * Читает одну строку ввода, используя переданный provider.
+     * Этот метод является единственной точкой взаимодействия с источником данных.
+     * @param prompt Приглашение к вводу (используется, если источник интерактивный).
      * @return Прочитанная строка.
+     * @throws NoSuchElementException если ввод был прерван или источник исчерпан.
      */
-    private String readLine(String prompt) {
-        try {
-            if (isScript) {
-                String line = scriptScanner.nextLine().trim();
-                System.out.println(line); // Эхо-вывод для скрипта
-                return line;
-            } else {
-                return lineReader.readLine(prompt + " ");
-            }
-        } catch (UserInterruptException e) {
-            // Если пользователь нажал Ctrl+C, выбрасываем исключение наверх
-            throw new NoSuchElementException("Ввод был прерван пользователем.");
-        } catch (org.jline.reader.EndOfFileException e) {
-            // Если пользователь нажал Ctrl+D
-            throw new NoSuchElementException("Достигнут конец потока ввода.");
-        }
+    public String readLine(String prompt) throws NoSuchElementException {
+        return provider.readLine(prompt);
     }
 
     /**
@@ -70,6 +56,10 @@ public class UserInputHandler {
         return new Person(name, coordinates, height, eyeColor, hairColor, nationality, location);
     }
 
+    /**
+     * Запрашивает данные для объекта Coordinates.
+     * @return Новый объект Coordinates.
+     */
     private Coordinates requestCoordinatesData() {
         System.out.println("Ввод координат:");
         Double x = requestDouble("  Введите координату X (дробное число, max: 348):", null, 348.0);
@@ -77,6 +67,10 @@ public class UserInputHandler {
         return new Coordinates(x, y);
     }
 
+    /**
+     * Запрашивает данные для объекта Location.
+     * @return Новый объект Location.
+     */
     private Location requestLocationData() {
         System.out.println("Ввод местоположения:");
         Float x = requestFloat("  Введите координату X местоположения (дробное число):", null, null);
@@ -86,9 +80,16 @@ public class UserInputHandler {
         return new Location(x, y, z, name);
     }
 
+    /**
+     * Запрашивает строковое значение с валидацией.
+     * @param prompt Приглашение к вводу.
+     * @param nullable Может ли значение быть null (пустая строка).
+     * @param maxLength Максимальная допустимая длина строки.
+     * @return Введенная строка или null.
+     */
     public String requestString(String prompt, boolean nullable, Integer maxLength) {
         while (true) {
-            String input = readLine(prompt).trim();
+            String input = this.readLine(prompt).trim();
             if (input.isEmpty()) {
                 if (nullable) return null;
                 System.err.println("Ошибка: Это поле не может быть пустым.");
@@ -100,10 +101,24 @@ public class UserInputHandler {
         }
     }
 
+    /**
+     * Перегруженный метод для запроса строки без ограничения длины.
+     * @param prompt Приглашение к вводу.
+     * @param nullable Может ли значение быть null.
+     * @return Введенная строка или null.
+     */
     public String requestString(String prompt, boolean nullable) {
         return requestString(prompt, nullable, null);
     }
 
+    /**
+     * Запрашивает значение из перечисления (enum).
+     * @param enumClass Класс перечисления.
+     * @param fieldName Имя поля для вывода в приглашении.
+     * @param nullable Может ли значение быть null.
+     * @return Выбранное значение enum или null.
+     * @param <T> Тип перечисления.
+     */
     public <T extends Enum<T>> T requestEnum(Class<T> enumClass, String fieldName, boolean nullable) {
         System.out.println("Выберите " + fieldName + ":");
         String values = enumClass == Color.class ? Color.listValues() : Country.listValues();
@@ -125,6 +140,16 @@ public class UserInputHandler {
         }
     }
 
+    /**
+     * Универсальный метод для запроса числовых значений с валидацией.
+     * @param prompt Приглашение к вводу.
+     * @param min Минимальное допустимое значение.
+     * @param max Максимальное допустимое значение.
+     * @param typeName Название типа для сообщений об ошибках (например, "целое число").
+     * @param parser Функция для парсинга строки в число.
+     * @return Введенное и валидированное число.
+     * @param <T> Тип числа (Long, Double, Float и т.д.).
+     */
     private <T extends Number & Comparable<T>> T requestNumber(String prompt, T min, T max, String typeName, java.util.function.Function<String, T> parser) {
         while (true) {
             try {
@@ -143,12 +168,23 @@ public class UserInputHandler {
         }
     }
 
+    /**
+     * Запрашивает число типа float.
+     */
     public float requestFloat(String prompt, Float min, Float max) {
         return requestNumber(prompt, min, max, "дробное число", Float::parseFloat);
     }
+
+    /**
+     * Запрашивает число типа Double.
+     */
     public Double requestDouble(String prompt, Double min, Double max) {
         return requestNumber(prompt, min, max, "дробное число", Double::parseDouble);
     }
+
+    /**
+     * Запрашивает число типа long.
+     */
     public long requestLong(String prompt, Long min, Long max) {
         return requestNumber(prompt, min, max, "целое число", Long::parseLong);
     }

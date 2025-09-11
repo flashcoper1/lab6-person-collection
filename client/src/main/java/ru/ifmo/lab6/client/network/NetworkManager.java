@@ -31,56 +31,59 @@ public class NetworkManager {
         this.selector = Selector.open();
         this.channel = DatagramChannel.open();
         this.channel.configureBlocking(false);
-        this.channel.register(selector, SelectionKey.OP_READ); // Регистрируем один раз при создании
+        this.channel.register(selector, SelectionKey.OP_READ);
     }
 
+    /**
+     * Отправляет запрос на сервер и ожидает ответ.
+     * @param request Объект запроса для отправки.
+     * @return Объект ответа от сервера.
+     * @throws IOException если произошел таймаут ожидания или другая сетевая ошибка.
+     */
     public Response sendAndReceive(Request request) throws IOException {
-        // 1. Отправляем запрос
+        // 1. Сериализуем и отправляем запрос
         byte[] requestData = SerializationUtil.serialize(request);
         channel.send(ByteBuffer.wrap(requestData), serverAddress);
-        System.out.println("-> Запрос отправлен на сервер.");
+        System.out.println("-> Запрос (" + request.getCommandType() + ") отправлен на сервер.");
 
-        // 2. Ждем ответа
+        // 2. Ждем ответа с таймаутом
         int readyChannels = selector.select(TIMEOUT_MS);
 
         if (readyChannels == 0) {
-            // Таймаут
-            System.err.println("Ошибка: Сервер не отвечает. Попробуйте позже.");
-            return null;
+            // Если за TIMEOUT_MS не пришло ответа, бросаем исключение
+            throw new IOException("Сервер не отвечает (таймаут " + TIMEOUT_MS + " мс).");
         }
 
         Set<SelectionKey> selectedKeys = selector.selectedKeys();
         Iterator<SelectionKey> keyIterator = selectedKeys.iterator();
 
-        // Хотя ключ должен быть один, проходим по всем на всякий случай
         while (keyIterator.hasNext()) {
             SelectionKey key = keyIterator.next();
             if (key.isReadable()) {
                 buffer.clear();
-                // Используем receive, а не read, так как канал не "подключен" постоянно
+                // Получаем датаграмму
                 channel.receive(buffer);
                 buffer.flip();
 
                 byte[] responseData = new byte[buffer.remaining()];
                 buffer.get(responseData);
-
                 keyIterator.remove(); // Удаляем обработанный ключ
 
                 try {
+                    // Десериализуем ответ
                     Response response = (Response) SerializationUtil.deserialize(responseData);
-                    System.out.println("<- Получен и успешно десериализован ответ от сервера.");
+                    System.out.println("<- Получен ответ от сервера.");
                     return response;
                 } catch (ClassNotFoundException | ClassCastException e) {
-                    System.err.println("!!! КРИТИЧЕСКАЯ ОШИБКА: Не удалось десериализовать ответ от сервера.");
-                    System.err.println("!!! Причина: " + e.getMessage());
-                    // e.printStackTrace(); // Можно раскомментировать для полной отладки
-                    return null;
+                    // Эта ошибка означает, что клиент и сервер несовместимы
+                    throw new IOException("Не удалось десериализовать ответ от сервера: " + e.getMessage(), e);
                 }
             } else {
                 keyIterator.remove();
             }
         }
-        return null; // Если по какой-то причине не удалось прочитать
+        // Если по какой-то причине мы вышли из цикла, но не получили данные - это ошибка
+        throw new IOException("Не удалось получить ответ от сервера после события чтения.");
     }
 
     public void close() {

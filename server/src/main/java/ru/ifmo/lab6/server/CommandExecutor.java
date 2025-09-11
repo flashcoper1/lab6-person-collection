@@ -10,6 +10,10 @@ import ru.ifmo.lab6.server.managers.CollectionManager;
 import java.util.TreeSet;
 import java.util.logging.Logger;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
 /**
  * Класс, отвечающий за выполнение команд, полученных от клиента.
  * Принимает запрос, определяет тип команды и вызывает соответствующий метод у CollectionManager.
@@ -37,7 +41,15 @@ public class CommandExecutor {
             switch (type) {
                 // Команды без аргументов
                 case HELP:
-                    return new Response(Response.Status.SUCCESS, getHelpMessage());
+                    String helpMessage = getHelpMessage();
+                    // 2. Формируем список имен команд для автодополнения
+                    ArrayList<String> commandSignatures = Arrays.stream(CommandType.values())
+                            .map(CommandType::getSignature)
+                            // Убираем аргументы {element}, id и т.д. для чистого автодополнения
+                            .map(s -> s.split(" ")[0])
+                            .collect(Collectors.toCollection(ArrayList::new));
+                    // 3. Отправляем и текст справки, и список команд
+                    return new Response(Response.Status.SUCCESS, helpMessage, commandSignatures);
                 case INFO:
                     return new Response(Response.Status.SUCCESS, collectionManager.getInfo());
                 case SHOW:

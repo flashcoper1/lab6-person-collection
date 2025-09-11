@@ -27,7 +27,11 @@ public class Main {
 
         try {
             Client client = new Client(host, port);
-            client.run();
+            if (client.initialize()) {
+                client.run();
+            } else {
+                System.out.println("Завершение работы клиента.");
+            }
         } catch (IOException e) {
             System.err.println("Не удалось подключиться к серверу: " + e.getMessage());
         }

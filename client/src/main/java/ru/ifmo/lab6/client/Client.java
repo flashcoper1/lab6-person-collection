@@ -1,81 +1,115 @@
 package ru.ifmo.lab6.client;
 
-import org.jline.reader.LineReader;
-import org.jline.reader.LineReaderBuilder;
-import org.jline.reader.UserInterruptException;
+import org.jline.reader.*;
+import org.jline.reader.impl.completer.StringsCompleter;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import ru.ifmo.lab6.client.managers.CommandFactory;
 import ru.ifmo.lab6.client.managers.UserInputHandler;
-import ru.ifmo.lab6.client.network.NetworkManager;
+import ru.ifmo.lab6.network.CommandType;
 import ru.ifmo.lab6.network.Request;
 import ru.ifmo.lab6.network.Response;
+import ru.ifmo.lab6.client.network.NetworkManager;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.NoSuchElementException;
 
 /**
  * Главный класс клиента. Управляет циклом работы,
- * читает команды, отправляет их серверу и выводит результат.
+ * реализует отказоустойчивую инициализацию с автодополнением.
  */
 public class Client {
     private final NetworkManager networkManager;
-    private final CommandFactory commandFactory;
-    private final LineReader lineReader;
     private final Terminal terminal;
+    private CommandFactory commandFactory;
+    private LineReader lineReader;
     private boolean running = true;
 
     public Client(String host, int port) throws IOException {
         this.networkManager = new NetworkManager(host, port);
         this.terminal = TerminalBuilder.builder().system(true).build();
+        // Создаем временный LineReader для диалога с пользователем при ошибках подключения
         this.lineReader = LineReaderBuilder.builder().terminal(terminal).build();
-        UserInputHandler consoleInputHandler = new UserInputHandler(lineReader);
-        this.commandFactory = new CommandFactory(consoleInputHandler);
+    }
+
+    /**
+     * Инициализирует клиент: получает список команд с сервера для автодополнения.
+     * @return true, если инициализация успешна, false - если пользователь отказался.
+     */
+    public boolean initialize() {
+        while (true) {
+            System.out.println("Попытка подключения к серверу для настройки автодополнения...");
+            try {
+                // Отправляем HELP, чтобы получить и справку, и список команд
+                Request helpRequest = new Request(CommandType.HELP);
+                Response response = networkManager.sendAndReceive(helpRequest);
+
+                if (response != null && response.getStatus() == Response.Status.SUCCESS && response.getData() instanceof Collection) {
+                    System.out.println("Сервер доступен. Настройка автодополнения...");
+
+                    @SuppressWarnings("unchecked")
+                    Collection<String> commands = (Collection<String>) response.getData();
+
+                    Completer completer = new StringsCompleter(commands);
+
+                    // Пересоздаем LineReader с настроенным автодополнением
+                    this.lineReader = LineReaderBuilder.builder()
+                            .terminal(terminal)
+                            .completer(completer)
+                            .build();
+
+                    // Теперь создаем CommandFactory с правильным LineReader'ом
+                    UserInputHandler consoleInputHandler = new UserInputHandler(lineReader);
+                    this.commandFactory = new CommandFactory(consoleInputHandler);
+
+                    // Выводим приветственное сообщение и справку
+                    System.out.println("\n" + response.getMessage());
+                    return true; // Успех
+
+                } else {
+                    throw new IOException("Сервер вернул некорректный ответ.");
+                }
+
+            } catch (IOException e) {
+                System.err.println("Ошибка инициализации: " + e.getMessage());
+                try {
+                    String answer = lineReader.readLine("Повторить попытку? (yes/no): ").trim().toLowerCase();
+                    if (!answer.equals("yes") && !answer.equals("y")) {
+                        return false; // Пользователь отказался
+                    }
+                } catch (UserInterruptException | EndOfFileException ex) {
+                    return false;
+                }
+            }
+        }
     }
 
     public void run() {
-        System.out.println("Клиентское приложение для управления коллекцией Person.");
-        System.out.println("Введите 'help' для получения списка команд.");
+        if (commandFactory == null) {
+            System.err.println("Клиент не был инициализирован. Завершение работы.");
+            return;
+        }
+
+        System.out.println("\nВведите команду. Используйте Tab для автодополнения.");
 
         while (running) {
             try {
                 String line = lineReader.readLine("> ");
-                if (line == null) { // Ctrl+D
-                    break;
-                }
+                if (line == null) break;
+
                 String trimmedLine = line.trim();
-                if (trimmedLine.isEmpty()) {
-                    continue;
-                }
-
-                String[] parts = trimmedLine.split("\\s+", 2);
-                String commandName = parts[0].toLowerCase();
-
-                // --- НОВАЯ ЛОГИКА ОБРАБОТКИ ---
-                if (commandName.equals("exit")) {
-                    stop();
-                    continue;
-                }
-
-                if (commandName.equals("execute_script")) {
-                    if (parts.length > 1) {
-                        CommandFactory.executeScript(parts[1], this);
-                    } else {
-                        System.err.println("Необходимо указать имя файла скрипта.");
-                    }
-                    continue; // Переходим к следующей итерации цикла
-                }
-                // -----------------------------
+                if (trimmedLine.isEmpty()) continue;
 
                 Request request = commandFactory.createRequest(trimmedLine);
                 if (request != null) {
                     processRequest(request);
                 }
 
-            } catch (UserInterruptException e) { // Ctrl+C
+            } catch (UserInterruptException e) {
                 System.out.println("\nДля выхода введите 'exit'.");
-            } catch (NoSuchElementException e) { // Ctrl+D во время ввода
+            } catch (NoSuchElementException e) {
                 break;
             }
         }
